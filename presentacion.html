@@ -405,7 +405,95 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
 </section>
 
 <!-- ====================================
-     SLIDE 2 – EL DESAFÍO
+     SLIDE 2 – SELECTOR DE PROPUESTA
+     ==================================== -->
+<section class="slide" id="s-selector" style="background:#080808;overflow:hidden">
+  <!-- Subtle grid -->
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0"></div>
+  <!-- Dual radial glow -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 22% 55%,rgba(204,0,0,.1) 0%,transparent 45%),radial-gradient(ellipse at 78% 55%,rgba(0,204,136,.09) 0%,transparent 45%);pointer-events:none;z-index:0"></div>
+
+  <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:var(--slide-padding)">
+
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.65rem,1.1vw,.85rem);letter-spacing:.25em;text-transform:uppercase;color:var(--text-dim);margin-bottom:clamp(.3rem,1vh,.6rem)" class="reveal">Seleccioná una propuesta</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3.2rem);letter-spacing:.04em;text-align:center;margin-bottom:clamp(.8rem,2.5vh,2rem);line-height:1" class="reveal">¿Qué solución querés explorar?</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,2vw,1.8rem);width:100%;max-width:min(90vw,860px)">
+
+      <!-- OPTION A: Kioscos -->
+      <div onclick="document.getElementById('s2').scrollIntoView({behavior:'smooth'})"
+           class="reveal" data-delay="2"
+           style="background:#111;border:2px solid rgba(204,0,0,.3);border-radius:18px;padding:clamp(1rem,2.5vh,2rem);cursor:pointer;transition:border-color .25s,background .25s,transform .25s;position:relative;overflow:hidden"
+           onmouseenter="this.style.borderColor='#CC0000';this.style.background='#1a0808';this.style.transform='translateY(-5px)'"
+           onmouseleave="this.style.borderColor='rgba(204,0,0,.3)';this.style.background='#111';this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),transparent)"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.6rem,.95vw,.78rem);letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.35rem">Opción A · Premium</div>
+        <div style="font-size:clamp(2rem,4.5vh,3.5rem);margin-bottom:.25rem;line-height:1">🖥️</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3vw,2.5rem);line-height:1;margin-bottom:.4rem">Kioscos<br>de Autogestión</div>
+        <div style="font-size:var(--small-size);color:var(--text-muted);margin-bottom:clamp(.5rem,1.2vh,1rem);line-height:1.45">Hardware 21.5" touch screen con PINpad integrado. Experiencia totalmente autónoma y premium.</div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;margin-bottom:clamp(.6rem,1.5vh,1.2rem)">
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:var(--red);font-size:.5rem">●</span><span style="color:var(--text-muted)">Inversión:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 432.000</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:var(--red);font-size:.5rem">●</span><span style="color:var(--text-muted)">Mensual:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 16.800/mes</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:var(--red);font-size:.5rem">●</span><span style="color:var(--text-muted)">Breakeven:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">~24 meses</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--red),#880000);border-radius:9px;padding:clamp(.45rem,1vh,.7rem) clamp(.7rem,1.5vw,1rem)">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);letter-spacing:.04em">Ver propuesta completa</span>
+          <span>→</span>
+        </div>
+      </div>
+
+      <!-- OPTION B: App Web + QR -->
+      <div onclick="document.getElementById('s18').scrollIntoView({behavior:'smooth'})"
+           class="reveal" data-delay="3"
+           style="background:#111;border:2px solid rgba(0,204,136,.25);border-radius:18px;padding:clamp(1rem,2.5vh,2rem);cursor:pointer;transition:border-color .25s,background .25s,transform .25s;position:relative;overflow:hidden"
+           onmouseenter="this.style.borderColor='#00CC88';this.style.background='#071510';this.style.transform='translateY(-5px)'"
+           onmouseleave="this.style.borderColor='rgba(0,204,136,.25)';this.style.background='#111';this.style.transform='translateY(0)'">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00CC88,transparent)"></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.6rem,.95vw,.78rem);letter-spacing:.2em;text-transform:uppercase;color:#00CC88;margin-bottom:.35rem">Opción B · Low Cost</div>
+        <div style="font-size:clamp(2rem,4.5vh,3.5rem);margin-bottom:.25rem;line-height:1">📱</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3vw,2.5rem);line-height:1;margin-bottom:.4rem">App Web<br>+ QR</div>
+        <div style="font-size:var(--small-size);color:var(--text-muted);margin-bottom:clamp(.5rem,1.2vh,1rem);line-height:1.45">Sin hardware. El cliente escanea un QR, pide, paga y recibe un WhatsApp cuando su comida está lista.</div>
+        <div style="display:flex;flex-direction:column;gap:.25rem;margin-bottom:clamp(.6rem,1.5vh,1.2rem)">
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:#00CC88;font-size:.5rem">●</span><span style="color:var(--text-muted)">Inversión:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 45.000</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:#00CC88;font-size:.5rem">●</span><span style="color:var(--text-muted)">Mensual:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 1.500/mes</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.45rem;font-size:var(--small-size)">
+            <span style="color:#00CC88;font-size:.5rem">●</span><span style="color:var(--text-muted)">Breakeven:</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700">6-8 meses</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#00CC88,#009960);border-radius:9px;padding:clamp(.45rem,1vh,.7rem) clamp(.7rem,1.5vw,1rem)">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);letter-spacing:.04em;color:#000">Ver propuesta completa</span>
+          <span style="color:#000">→</span>
+        </div>
+      </div>
+
+    </div>
+
+    <p style="font-size:var(--small-size);color:var(--text-dim);text-align:center;margin-top:clamp(.5rem,1.5vh,1rem)" class="reveal" data-delay="4">
+      O navegá con ↑↓ para ver la presentación completa
+    </p>
+
+  </div>
+  <div class="slide-num" data-slidenum></div>
+</section>
+
+<!-- ====================================
+     SLIDE 3 – EL DESAFÍO
      ==================================== -->
 <section class="slide grid-bg" id="s2">
   <div class="slide-content">
@@ -1818,9 +1906,9 @@ class Presentation {
     });
 
     // Draw charts
-    if (idx === 9 && !this.chartsDrawn.has('hw')) { this.chartsDrawn.add('hw'); this.drawDonut('hwChart', [79.3, 15.3, 5.4], ['#CC0000','#8b5cf6','#4ade80']); }
-    if (idx === 11 && !this.chartsDrawn.has('total')) { this.chartsDrawn.add('total'); this.drawDonut('totalChart', [77, 14, 9], ['#CC0000','#FFB800','#4ade80']); }
-    if (idx === 13 && !this.chartsDrawn.has('roi')) { this.chartsDrawn.add('roi'); setTimeout(() => this.drawROI(), 400); }
+    if (idx === 10 && !this.chartsDrawn.has('hw')) { this.chartsDrawn.add('hw'); this.drawDonut('hwChart', [79.3, 15.3, 5.4], ['#CC0000','#8b5cf6','#4ade80']); }
+    if (idx === 12 && !this.chartsDrawn.has('total')) { this.chartsDrawn.add('total'); this.drawDonut('totalChart', [77, 14, 9], ['#CC0000','#FFB800','#4ade80']); }
+    if (idx === 14 && !this.chartsDrawn.has('roi')) { this.chartsDrawn.add('roi'); setTimeout(() => this.drawROI(), 400); }
   }
 
   drawDonut(id, data, colors) {
