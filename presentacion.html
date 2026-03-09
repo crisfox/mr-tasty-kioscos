@@ -324,6 +324,18 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
 @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes qrPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,184,0,.4)}50%{box-shadow:0 0 0 8px rgba(255,184,0,0)}}
 .qr-scanning{animation:qrPulse 1.5s infinite}
+/* Cart bar — sticky overlay at screen bottom */
+#bigCartBar{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(135deg,#CC0000 0%,#990000 100%);padding:clamp(.4rem,.9vh,.65rem) clamp(.6rem,1.5vw,1rem);display:none;align-items:center;justify-content:space-between;z-index:20;border-top:2px solid rgba(255,184,0,.35);cursor:pointer;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .3s}
+#bigCartBar:hover{filter:brightness(1.08)}
+/* Add "+" buttons in product list */
+.big-add-btn{width:clamp(1.8rem,3.5vh,2.6rem);height:clamp(1.8rem,3.5vh,2.6rem);border-radius:50%;border:none;background:var(--gold);color:#000;font-size:clamp(1.1rem,2.4vh,1.7rem);font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,background .15s;line-height:1;font-family:'Barlow Condensed',sans-serif}
+.big-add-btn:hover{transform:scale(1.12);background:#ffd040}
+.big-add-btn:active{transform:scale(.88)}
+/* Quantity badge on "+" button */
+.big-qty-badge{position:absolute;top:-5px;right:-5px;background:var(--gold);color:#000;font-size:clamp(.52rem,.9vh,.72rem);font-weight:700;min-width:clamp(.85rem,1.6vh,1.15rem);height:clamp(.85rem,1.6vh,1.15rem);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;opacity:0;transform:scale(0);transition:all .25s cubic-bezier(.34,1.56,.64,1);padding:0 .2rem}
+.big-qty-badge.show{opacity:1;transform:scale(1)}
+@keyframes addBounce{0%{transform:scale(1)}40%{transform:scale(1.2)}70%{transform:scale(.93)}100%{transform:scale(1)}}
+.big-add-bounce{animation:addBounce .32s ease}
 
 /* ===== COUNTER ANIMATION ===== */
 .count-anim{display:inline}
@@ -556,102 +568,177 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
 <!-- ====================================
      SLIDE 4 – PROTOTIPO INTERACTIVO (full screen)
      ==================================== -->
-<section class="slide" id="s4proto" style="background:#0a0a0a">
-  <!-- grid bg -->
-  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,153,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,153,0,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none"></div>
+<section class="slide" id="s4proto" style="background:#0a0a0a;overflow:hidden">
+  <!-- Ambient glow bg -->
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(204,0,0,.08) 0%,transparent 65%),radial-gradient(ellipse at 80% 20%,rgba(255,153,0,.05) 0%,transparent 50%);pointer-events:none;z-index:0"></div>
 
-  <div class="slide-content" style="align-items:center;text-align:center;position:relative;z-index:1">
-    <p class="section-label reveal">Demo interactiva</p>
-    <h2 style="font-size:var(--h2-size);margin-bottom:clamp(.4rem,1vh,.8rem)" class="reveal">Prototipo del Kiosko</h2>
+  <!-- Tiny top label bar -->
+  <div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,3vw,3rem);z-index:10;background:linear-gradient(to bottom,rgba(0,0,0,.7),transparent)">
+    <div style="display:flex;align-items:center;gap:.6rem">
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim)">Demo interactiva</span>
+      <span style="width:1px;height:14px;background:var(--border)"></span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:var(--red)">Prototipo Kiosko Mr. Tasty</span>
+    </div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.7rem;color:var(--text-dim)" data-slidenum></div>
+  </div>
 
-    <!-- Large kiosk frame -->
-    <div class="reveal" data-delay="2" style="position:relative;display:inline-block">
+  <!-- Centered kiosk device — fills almost full viewport -->
+  <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1;padding:44px 0 8px">
+    <div class="reveal" data-delay="1" style="
+      height:calc(100vh - 60px);
+      height:calc(100dvh - 60px);
+      width:calc((100vh - 60px) * 0.52);
+      width:calc((100dvh - 60px) * 0.52);
+      max-width:min(55vw, 600px);
+      position:relative;
+    ">
       <!-- Device frame -->
       <div id="bigProtoDevice" style="
         background:#111;
-        border-radius:24px;
-        border:3px solid #2a2a2a;
-        box-shadow:0 0 60px rgba(255,153,0,.15),0 20px 60px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.4);
+        border-radius:clamp(16px,2vw,28px);
+        border:3px solid #333;
+        box-shadow:0 0 80px rgba(255,153,0,.2),0 30px 80px rgba(0,0,0,.8),inset 0 0 40px rgba(0,0,0,.5);
         overflow:hidden;
-        width:clamp(280px,35vw,420px);
-        height:clamp(480px,65vh,640px);
+        width:100%;
+        height:100%;
         display:flex;
         flex-direction:column;
       ">
         <!-- Top bar -->
-        <div style="background:linear-gradient(135deg,#CC0000,#880000);padding:.6rem 1.2rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-          <div class="mr-tasty-logo" style="background:none;box-shadow:none;padding:0;flex-direction:row;gap:.3rem">
-            <span style="font-family:'Fredoka One',cursive;font-size:.85rem;color:#FF9900">MR.</span>
-            <span style="font-family:'Fredoka One',cursive;font-size:1.1rem;color:#FF9900">TASTY</span>
+        <div style="background:linear-gradient(135deg,#CC0000,#880000);padding:clamp(.6rem,1.2vh,.9rem) clamp(.8rem,2vw,1.5rem);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:.4rem">
+            <span style="font-family:'Fredoka One',cursive;font-size:clamp(.95rem,1.6vh,1.2rem);color:#FF9900">MR.</span>
+            <span style="font-family:'Fredoka One',cursive;font-size:clamp(1.2rem,2vh,1.6rem);color:#FF9900">TASTY</span>
           </div>
-          <div style="font-size:.7rem;color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif">KIOSKO #01</div>
+          <div style="font-size:clamp(.7rem,1vh,.85rem);color:rgba(255,255,255,.6);font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em">KIOSKO #01</div>
         </div>
 
         <!-- Screen area -->
         <div style="flex:1;position:relative;overflow:hidden" id="bigProtoScreen">
 
           <!-- STEP 0: Welcome -->
-          <div class="big-proto-step active" id="bps0" style="padding:1rem">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:.4rem;margin-bottom:.6rem">¿Qué querés comer hoy?</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-              <div class="proto-item" onclick="bigProtoNav(0,1)"><span class="proto-item-emoji">🍔</span><span class="proto-item-name" style="font-size:.85rem">Hamburguesas</span><span class="proto-item-price" style="font-size:.75rem">desde $8.500</span></div>
-              <div class="proto-item" onclick="bigProtoNav(0,1)"><span class="proto-item-emoji">🎁</span><span class="proto-item-name" style="font-size:.85rem">Combos</span><span class="proto-item-price" style="font-size:.75rem">desde $12.000</span></div>
-              <div class="proto-item" onclick="bigProtoNav(0,1)"><span class="proto-item-emoji">🍟</span><span class="proto-item-name" style="font-size:.85rem">Papas</span><span class="proto-item-price" style="font-size:.75rem">desde $3.200</span></div>
-              <div class="proto-item" onclick="bigProtoNav(0,1)"><span class="proto-item-emoji">🥤</span><span class="proto-item-name" style="font-size:.85rem">Bebidas</span><span class="proto-item-price" style="font-size:.75rem">desde $1.800</span></div>
+          <div class="big-proto-step active" id="bps0" style="padding:clamp(.8rem,2vh,1.5rem)">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vh,1.4rem);color:var(--gold);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:clamp(.4rem,.8vh,.6rem);margin-bottom:clamp(.5rem,1.2vh,1rem)">¿Qué querés comer hoy?</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(.5rem,1.2vh,.9rem);margin-bottom:clamp(.5rem,1vh,.8rem)">
+              <div class="proto-item" onclick="bigProtoNav(0,1)" style="padding:clamp(.6rem,1.5vh,1.1rem)"><span class="proto-item-emoji" style="font-size:clamp(1.8rem,4vh,3rem)">🍔</span><span class="proto-item-name" style="font-size:clamp(.85rem,1.5vh,1.15rem)">Hamburguesas</span><span class="proto-item-price" style="font-size:clamp(.75rem,1.2vh,1rem)">desde $8.500</span></div>
+              <div class="proto-item" onclick="bigProtoNav(0,1)" style="padding:clamp(.6rem,1.5vh,1.1rem)"><span class="proto-item-emoji" style="font-size:clamp(1.8rem,4vh,3rem)">🎁</span><span class="proto-item-name" style="font-size:clamp(.85rem,1.5vh,1.15rem)">Combos</span><span class="proto-item-price" style="font-size:clamp(.75rem,1.2vh,1rem)">desde $12.000</span></div>
+              <div class="proto-item" onclick="bigProtoNav(0,1)" style="padding:clamp(.6rem,1.5vh,1.1rem)"><span class="proto-item-emoji" style="font-size:clamp(1.8rem,4vh,3rem)">🍟</span><span class="proto-item-name" style="font-size:clamp(.85rem,1.5vh,1.15rem)">Papas</span><span class="proto-item-price" style="font-size:clamp(.75rem,1.2vh,1rem)">desde $3.200</span></div>
+              <div class="proto-item" onclick="bigProtoNav(0,1)" style="padding:clamp(.6rem,1.5vh,1.1rem)"><span class="proto-item-emoji" style="font-size:clamp(1.8rem,4vh,3rem)">🥤</span><span class="proto-item-name" style="font-size:clamp(.85rem,1.5vh,1.15rem)">Bebidas</span><span class="proto-item-price" style="font-size:clamp(.75rem,1.2vh,1rem)">desde $1.800</span></div>
             </div>
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(0,5)" style="margin-top:.5rem;font-size:.85rem">🏷️ Tengo un cupón de descuento</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(0,5)" style="font-size:clamp(.85rem,1.4vh,1.1rem);padding:clamp(.5rem,1.2vh,.8rem)">🏷️ Tengo un cupón de descuento</button>
           </div>
 
-          <!-- STEP 1: Products -->
-          <div class="big-proto-step right" id="bps1" style="padding:1rem">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);margin-bottom:.5rem">🍔 Elegí tu hamburguesa</div>
-            <div style="display:flex;flex-direction:column;gap:.4rem">
-              <div class="proto-item" style="display:flex;align-items:center;gap:.7rem;text-align:left" onclick="bigProtoNav(1,2)">
-                <span style="font-size:2rem;flex-shrink:0">🍔</span>
-                <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem">Tasty Classic</div><div style="font-size:.75rem;color:var(--text-muted)">Doble cheddar · Panceta</div><div style="font-size:.8rem;color:var(--gold);font-weight:700">$8.500</div></div>
+          <!-- STEP 1: Products (add-to-cart) -->
+          <div class="big-proto-step right" id="bps1" style="padding:clamp(.6rem,1.5vh,1.2rem) clamp(.6rem,1.5vh,1.2rem) clamp(3rem,7vh,5rem)">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vh,1.4rem);color:var(--gold);margin-bottom:clamp(.4rem,.8vh,.7rem)">🍔 Menú Mr. Tasty</div>
+            <div style="display:flex;flex-direction:column;gap:clamp(.35rem,.8vh,.6rem)">
+
+              <!-- Product rows with + button -->
+              <div class="proto-item" style="display:flex;align-items:center;gap:clamp(.5rem,1.2vw,.9rem);text-align:left;padding:clamp(.5rem,1.2vh,.85rem);position:relative">
+                <span style="font-size:clamp(1.8rem,3.5vh,2.8rem);flex-shrink:0">🍔</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.88rem,1.6vh,1.2rem)">Tasty Classic</div>
+                  <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">Doble cheddar · Panceta</div>
+                  <div style="font-size:clamp(.8rem,1.4vh,1.05rem);color:var(--gold);font-weight:700;margin-top:.15rem">$8.500</div>
+                </div>
+                <div style="position:relative;flex-shrink:0">
+                  <button class="big-add-btn" id="badd-0" onclick="bigAddToCart(0,'Tasty Classic',8500,'🍔');event.stopPropagation()">+</button>
+                  <div class="big-qty-badge" id="bqty-0"></div>
+                </div>
               </div>
-              <div class="proto-item" style="display:flex;align-items:center;gap:.7rem;text-align:left" onclick="bigProtoNav(1,2)">
-                <span style="font-size:2rem;flex-shrink:0">🔥</span>
-                <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem">Tasty Spicy</div><div style="font-size:.75rem;color:var(--text-muted)">Jalapeño · Bacon crocante</div><div style="font-size:.8rem;color:var(--gold);font-weight:700">$9.200</div></div>
+
+              <div class="proto-item" style="display:flex;align-items:center;gap:clamp(.5rem,1.2vw,.9rem);text-align:left;padding:clamp(.5rem,1.2vh,.85rem);position:relative">
+                <span style="font-size:clamp(1.8rem,3.5vh,2.8rem);flex-shrink:0">🔥</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.88rem,1.6vh,1.2rem)">Tasty Spicy</div>
+                  <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">Jalapeño · Bacon crocante</div>
+                  <div style="font-size:clamp(.8rem,1.4vh,1.05rem);color:var(--gold);font-weight:700;margin-top:.15rem">$9.200</div>
+                </div>
+                <div style="position:relative;flex-shrink:0">
+                  <button class="big-add-btn" id="badd-1" onclick="bigAddToCart(1,'Tasty Spicy',9200,'🔥');event.stopPropagation()">+</button>
+                  <div class="big-qty-badge" id="bqty-1"></div>
+                </div>
               </div>
-              <div class="proto-item" style="display:flex;align-items:center;gap:.7rem;text-align:left" onclick="bigProtoNav(1,2)">
-                <span style="font-size:2rem;flex-shrink:0">⭐</span>
-                <div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem">Tasty Premium</div><div style="font-size:.75rem;color:var(--text-muted)">Angus 200g · Huevo frito</div><div style="font-size:.8rem;color:var(--gold);font-weight:700">$11.500</div></div>
+
+              <div class="proto-item" style="display:flex;align-items:center;gap:clamp(.5rem,1.2vw,.9rem);text-align:left;padding:clamp(.5rem,1.2vh,.85rem);position:relative">
+                <span style="font-size:clamp(1.8rem,3.5vh,2.8rem);flex-shrink:0">⭐</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.88rem,1.6vh,1.2rem)">Tasty Premium</div>
+                  <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">Angus 200g · Huevo frito</div>
+                  <div style="font-size:clamp(.8rem,1.4vh,1.05rem);color:var(--gold);font-weight:700;margin-top:.15rem">$11.500</div>
+                </div>
+                <div style="position:relative;flex-shrink:0">
+                  <button class="big-add-btn" id="badd-2" onclick="bigAddToCart(2,'Tasty Premium',11500,'⭐');event.stopPropagation()">+</button>
+                  <div class="big-qty-badge" id="bqty-2"></div>
+                </div>
               </div>
+
+              <!-- Divider -->
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.7rem,1.1vh,.85rem);letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase;padding:.2rem 0 .1rem;border-top:1px solid #1e1e1e;margin-top:.1rem">Extras</div>
+
+              <div class="proto-item" style="display:flex;align-items:center;gap:clamp(.5rem,1.2vw,.9rem);text-align:left;padding:clamp(.5rem,1.2vh,.85rem);position:relative">
+                <span style="font-size:clamp(1.8rem,3.5vh,2.8rem);flex-shrink:0">🍟</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.88rem,1.6vh,1.2rem)">Papas Medianas</div>
+                  <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">Crocantes, con sal</div>
+                  <div style="font-size:clamp(.8rem,1.4vh,1.05rem);color:var(--gold);font-weight:700;margin-top:.15rem">$3.200</div>
+                </div>
+                <div style="position:relative;flex-shrink:0">
+                  <button class="big-add-btn" id="badd-3" onclick="bigAddToCart(3,'Papas Medianas',3200,'🍟');event.stopPropagation()">+</button>
+                  <div class="big-qty-badge" id="bqty-3"></div>
+                </div>
+              </div>
+
+              <div class="proto-item" style="display:flex;align-items:center;gap:clamp(.5rem,1.2vw,.9rem);text-align:left;padding:clamp(.5rem,1.2vh,.85rem);position:relative">
+                <span style="font-size:clamp(1.8rem,3.5vh,2.8rem);flex-shrink:0">🥤</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.88rem,1.6vh,1.2rem)">Coca-Cola 500ml</div>
+                  <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">Bien fría</div>
+                  <div style="font-size:clamp(.8rem,1.4vh,1.05rem);color:var(--gold);font-weight:700;margin-top:.15rem">$2.100</div>
+                </div>
+                <div style="position:relative;flex-shrink:0">
+                  <button class="big-add-btn" id="badd-4" onclick="bigAddToCart(4,'Coca-Cola 500ml',2100,'🥤');event.stopPropagation()">+</button>
+                  <div class="big-qty-badge" id="bqty-4"></div>
+                </div>
+              </div>
+
             </div>
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(1,0)" style="margin-top:.4rem;font-size:.85rem">← Volver</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(1,0)" style="margin-top:clamp(.4rem,1vh,.7rem);font-size:clamp(.85rem,1.4vh,1.1rem);padding:clamp(.4rem,1vh,.7rem)">← Volver</button>
           </div>
 
-          <!-- STEP 2: Cart -->
-          <div class="big-proto-step right" id="bps2" style="padding:1rem">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);margin-bottom:.5rem">🛒 Tu Pedido</div>
-            <div style="background:#1a1a1a;border-radius:10px;padding:.6rem;margin-bottom:.4rem">
-              <div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.25rem 0;border-bottom:1px solid #2a2a2a"><span>Tasty Classic ×1</span><span style="color:var(--gold);font-weight:700">$8.500</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.25rem 0;border-bottom:1px solid #2a2a2a"><span>Papas Medianas ×1</span><span style="color:var(--gold);font-weight:700">$3.200</span></div>
-              <div style="display:flex;justify-content:space-between;font-size:.85rem;padding:.25rem 0"><span>Coca-Cola 500ml ×1</span><span style="color:var(--gold);font-weight:700">$2.100</span></div>
+          <!-- STEP 2: Cart (dynamic) -->
+          <div class="big-proto-step right" id="bps2" style="padding:clamp(.8rem,2vh,1.5rem)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(.5rem,1vh,.8rem)">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vh,1.4rem);color:var(--gold)">🛒 Tu Pedido</div>
+              <button onclick="bigProtoNav(2,1)" style="background:none;border:none;color:var(--text-muted);font-size:clamp(.75rem,1.2vh,1rem);font-family:'Barlow Condensed',sans-serif;cursor:pointer;text-decoration:underline">+ Agregar más</button>
+
             </div>
-            <div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);margin-bottom:.4rem">TOTAL: $13.800</div>
-            <button class="proto-btn proto-btn-primary" onclick="bigProtoNav(2,3)" style="font-size:.9rem">💳 Ir al pago →</button>
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(2,5)" style="margin-top:.3rem;font-size:.85rem">🏷️ Tengo un cupón</button>
+            <div id="bps2CartItems" style="background:#1a1a1a;border-radius:12px;padding:clamp(.5rem,1.2vh,.8rem);margin-bottom:clamp(.4rem,.8vh,.7rem);min-height:clamp(2rem,5vh,4rem)">
+              <!-- Rendered dynamically by bigRenderCartReview() -->
+            </div>
+            <div id="bps2DiscountRow" style="display:none;text-align:right;font-size:clamp(.8rem,1.3vh,1rem);color:#4ade80;margin-bottom:.2rem"></div>
+            <div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3.2vh,2.3rem);color:var(--gold);margin-bottom:clamp(.4rem,.8vh,.7rem)">TOTAL: <span id="bps2Total">$0</span></div>
+            <button class="proto-btn proto-btn-primary" onclick="bigProtoNav(2,3)" style="font-size:clamp(.9rem,1.6vh,1.2rem);padding:clamp(.5rem,1.2vh,.9rem)">💳 Ir al pago →</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(2,5)" style="margin-top:clamp(.3rem,.7vh,.5rem);font-size:clamp(.85rem,1.4vh,1.1rem);padding:clamp(.4rem,1vh,.7rem)">🏷️ Tengo un cupón</button>
           </div>
 
           <!-- STEP 3: Payment with QR -->
-          <div class="big-proto-step right" id="bps3" style="padding:1rem">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);margin-bottom:.4rem">💳 Elegí cómo pagar</div>
+          <div class="big-proto-step right" id="bps3" style="padding:clamp(.8rem,2vh,1.5rem)">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vh,1.4rem);color:var(--gold);margin-bottom:clamp(.4rem,.8vh,.7rem)">💳 Elegí cómo pagar</div>
 
             <!-- Payment tabs -->
-            <div style="display:flex;gap:.3rem;margin-bottom:.5rem">
-              <button onclick="switchPayTab('mp')" id="ptabMp" style="flex:1;padding:.3rem;border:1.5px solid var(--gold);background:rgba(255,184,0,.15);border-radius:6px;cursor:pointer;font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--gold)">MP QR</button>
-              <button onclick="switchPayTab('modo')" id="ptabModo" style="flex:1;padding:.3rem;border:1.5px solid #333;background:transparent;border-radius:6px;cursor:pointer;font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#777">MODO</button>
-              <button onclick="switchPayTab('card')" id="ptabCard" style="flex:1;padding:.3rem;border:1.5px solid #333;background:transparent;border-radius:6px;cursor:pointer;font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#777">Tarjeta</button>
+            <div style="display:flex;gap:.4rem;margin-bottom:clamp(.5rem,1vh,.8rem)">
+              <button onclick="switchPayTab('mp')" id="ptabMp" style="flex:1;padding:clamp(.35rem,.8vh,.55rem);border:2px solid var(--gold);background:rgba(255,184,0,.15);border-radius:8px;cursor:pointer;font-size:clamp(.8rem,1.3vh,1rem);font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--gold)">MP QR</button>
+              <button onclick="switchPayTab('modo')" id="ptabModo" style="flex:1;padding:clamp(.35rem,.8vh,.55rem);border:2px solid #333;background:transparent;border-radius:8px;cursor:pointer;font-size:clamp(.8rem,1.3vh,1rem);font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#777">MODO</button>
+              <button onclick="switchPayTab('card')" id="ptabCard" style="flex:1;padding:clamp(.35rem,.8vh,.55rem);border:2px solid #333;background:transparent;border-radius:8px;cursor:pointer;font-size:clamp(.8rem,1.3vh,1rem);font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#777">Tarjeta</button>
             </div>
 
             <!-- MP QR panel -->
             <div id="payPanelMp" style="text-align:center">
-              <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem">Abrí Mercado Pago y escaneá el código</div>
-              <!-- QR Code SVG -->
-              <div style="display:inline-block;background:white;border-radius:8px;padding:8px;margin-bottom:.4rem">
-                <svg viewBox="0 0 25 25" width="110" height="110" shape-rendering="crispEdges">
+              <div style="font-size:clamp(.8rem,1.3vh,1rem);color:var(--text-muted);margin-bottom:clamp(.4rem,.8vh,.6rem)">Abrí Mercado Pago y escaneá el código</div>
+              <!-- QR Code SVG — bigger -->
+              <div style="display:inline-block;background:white;border-radius:10px;padding:10px;margin-bottom:clamp(.4rem,.8vh,.6rem)">
+                <svg viewBox="0 0 25 25" width="clamp(130px,18vh,190px)" height="clamp(130px,18vh,190px)" shape-rendering="crispEdges">
                   <!-- Finder TL -->
                   <rect x="0" y="0" width="7" height="7" fill="#000"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3" fill="#000"/>
                   <!-- Finder TR -->
@@ -692,57 +779,74 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
               <div style="height:4px;background:#222;border-radius:2px;overflow:hidden;margin-bottom:.3rem">
                 <div id="qrTimerBar" style="height:100%;background:linear-gradient(90deg,var(--gold),var(--red));width:100%;transition:width linear"></div>
               </div>
-              <div style="font-size:.7rem;color:#555">$13.800 · MP: cr****ox@gmail.com</div>
+              <div style="font-size:clamp(.65rem,1.1vh,.85rem);color:#555"><span id="payMpTotal">$0</span> · MP: cr****ox@gmail.com</div>
             </div>
 
             <!-- MODO panel (hidden) -->
             <div id="payPanelModo" style="display:none;text-align:center">
-              <img src="assets/modo-logo.png" alt="MODO" style="height:30px;margin-bottom:.4rem;filter:none">
-              <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.4rem">Abrí tu app bancaria y escaneá</div>
-              <div style="display:inline-block;background:white;border-radius:8px;padding:8px"><svg viewBox="0 0 25 25" width="90" height="90" shape-rendering="crispEdges"><rect width="25" height="25" fill="white"/><rect x="0" y="0" width="7" height="7" fill="#000"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3" fill="#18A558"/><rect x="18" y="0" width="7" height="7" fill="#000"/><rect x="19" y="1" width="5" height="5" fill="#fff"/><rect x="20" y="2" width="3" height="3" fill="#18A558"/><rect x="0" y="18" width="7" height="7" fill="#000"/><rect x="1" y="19" width="5" height="5" fill="#fff"/><rect x="2" y="20" width="3" height="3" fill="#18A558"/><rect x="9" y="2" fill="#18A558" width="2" height="1"/><rect x="13" y="3" fill="#000" width="1" height="2"/><rect x="10" y="5" fill="#000" width="2" height="1"/><rect x="8" y="8" fill="#000" width="3" height="1"/><rect x="12" y="8" fill="#000" width="2" height="1"/><rect x="17" y="9" fill="#000" width="2" height="1"/><rect x="9" y="10" fill="#000" width="1" height="2"/><rect x="13" y="11" fill="#000" width="3" height="1"/><rect x="18" y="12" fill="#000" width="2" height="1"/></svg></div>
+              <img src="assets/modo-logo-transparente.png" alt="MODO" style="height:clamp(20px,3.5vh,30px);margin-bottom:clamp(.3rem,.6vh,.5rem)">
+              <div style="font-size:clamp(.7rem,1.2vh,1rem);color:var(--text-muted);margin-bottom:clamp(.3rem,.6vh,.5rem)">Abrí tu app bancaria y escaneá</div>
+              <div style="display:inline-block;background:white;border-radius:8px;padding:8px"><svg viewBox="0 0 25 25" width="clamp(80px,14vh,120px)" height="clamp(80px,14vh,120px)" shape-rendering="crispEdges"><rect width="25" height="25" fill="white"/><rect x="0" y="0" width="7" height="7" fill="#000"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3" fill="#18A558"/><rect x="18" y="0" width="7" height="7" fill="#000"/><rect x="19" y="1" width="5" height="5" fill="#fff"/><rect x="20" y="2" width="3" height="3" fill="#18A558"/><rect x="0" y="18" width="7" height="7" fill="#000"/><rect x="1" y="19" width="5" height="5" fill="#fff"/><rect x="2" y="20" width="3" height="3" fill="#18A558"/><rect x="9" y="2" fill="#18A558" width="2" height="1"/><rect x="13" y="3" fill="#000" width="1" height="2"/><rect x="10" y="5" fill="#000" width="2" height="1"/><rect x="8" y="8" fill="#000" width="3" height="1"/><rect x="12" y="8" fill="#000" width="2" height="1"/><rect x="17" y="9" fill="#000" width="2" height="1"/><rect x="9" y="10" fill="#000" width="1" height="2"/><rect x="13" y="11" fill="#000" width="3" height="1"/><rect x="18" y="12" fill="#000" width="2" height="1"/></svg></div>
             </div>
 
             <!-- Card panel (hidden) -->
             <div id="payPanelCard" style="display:none;text-align:center">
-              <div style="font-size:1.8rem;margin-bottom:.3rem">💳</div>
-              <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:.4rem">Insertá, deslizá o acercá tu tarjeta al PINpad</div>
-              <div style="background:#1a1a1a;border-radius:8px;padding:.6rem;margin:.3rem 0">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:600">PINpad Payway activo</div>
-                <div style="font-size:.75rem;color:var(--text-muted)">VISA · Mastercard · Amex · Débito</div>
+              <div style="background:white;border-radius:clamp(6px,1vh,10px);padding:clamp(.4rem,.8vh,.6rem) clamp(.8rem,2vw,1.2rem);display:inline-flex;align-items:center;justify-content:center;margin-bottom:clamp(.3rem,.6vh,.5rem)">
+                <img src="assets/payway-logo-transparente.png" alt="Payway" style="height:clamp(18px,3vh,26px);object-fit:contain">
+              </div>
+              <div style="font-size:clamp(.75rem,1.2vh,1rem);color:var(--text-muted);margin-bottom:clamp(.3rem,.6vh,.5rem)">Insertá, deslizá o acercá tu tarjeta al PINpad</div>
+              <div style="background:#1a1a1a;border-radius:8px;padding:clamp(.4rem,.8vh,.6rem);margin:clamp(.2rem,.4vh,.35rem) 0">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.4vh,1.05rem);font-weight:600">PINpad Payway activo</div>
+                <div style="font-size:clamp(.7rem,1.1vh,.9rem);color:var(--text-muted)">VISA · Mastercard · Amex · Débito</div>
               </div>
             </div>
 
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(3,2)" style="margin-top:.3rem;font-size:.8rem">← Volver al carrito</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(3,2)" style="margin-top:clamp(.3rem,.7vh,.5rem);font-size:clamp(.8rem,1.3vh,1rem)">← Volver al carrito</button>
           </div>
 
           <!-- STEP 4: Success -->
-          <div class="big-proto-step right" id="bps4" style="padding:1rem;text-align:center">
-            <div style="font-size:3rem;margin-bottom:.4rem;animation:popIn .5s var(--ease)">✅</div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.2rem;color:#4ade80;margin-bottom:.2rem">¡Pago Aprobado!</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:3rem;color:var(--gold);line-height:1">$13.800</div>
-            <div style="margin:.4rem 0;font-size:.75rem;color:var(--text-muted)">Tu número de orden:</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:white;line-height:1;margin-bottom:.4rem">#247</div>
-            <div style="background:#1a1a1a;border-radius:8px;padding:.5rem;font-size:.7rem;color:#4ade80;line-height:1.6">
+          <div class="big-proto-step right" id="bps4" style="padding:clamp(.8rem,1.8vh,1.4rem);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-size:clamp(2.2rem,5vh,4rem);margin-bottom:clamp(.3rem,.7vh,.5rem);animation:popIn .5s var(--ease)">✅</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1.1rem,2.2vh,1.6rem);color:#4ade80;margin-bottom:clamp(.15rem,.4vh,.3rem)">¡Pago Aprobado!</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.5vh,3.5rem);color:var(--gold);line-height:1" id="bps4Total">$0</div>
+            <div style="margin:clamp(.3rem,.7vh,.5rem) 0;font-size:clamp(.7rem,1.2vh,.95rem);color:var(--text-muted)">Tu número de orden:</div>
+            <div id="bps4Order" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vh,3rem);color:white;line-height:1;margin-bottom:clamp(.3rem,.7vh,.5rem)">#247</div>
+            <div style="background:#1a1a1a;border-radius:8px;padding:clamp(.4rem,.8vh,.6rem);font-size:clamp(.65rem,1.1vh,.85rem);color:#4ade80;line-height:1.6;width:100%">
               🧾 Ticket Fiscal emitido<br>
               CAE: 72849301847293<br>
               <span style="color:var(--text-muted)">Tango Restó · ARCA validado ✓</span>
             </div>
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoReset()" style="margin-top:.5rem;font-size:.85rem">← Nuevo pedido</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoReset()" style="margin-top:clamp(.4rem,.9vh,.6rem);font-size:clamp(.82rem,1.4vh,1.05rem)">← Nuevo pedido</button>
           </div>
 
           <!-- STEP 5: Coupon -->
-          <div class="big-proto-step right" id="bps5" style="padding:1rem;text-align:center">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);margin-bottom:.5rem">🏷️ Escáner de Cupón</div>
-            <div style="font-size:2rem;margin-bottom:.4rem">📱</div>
-            <div id="bigCouponBox" style="background:#1a1a1a;border:2px dashed #444;border-radius:8px;padding:.7rem;cursor:pointer;transition:all .3s;font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:#666" onclick="bigSimulateScan()">
+          <div class="big-proto-step right" id="bps5" style="padding:clamp(.8rem,1.8vh,1.4rem);text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.95rem,1.8vh,1.35rem);color:var(--gold);margin-bottom:clamp(.4rem,.8vh,.6rem)">🏷️ Escáner de Cupón</div>
+            <div style="font-size:clamp(1.6rem,3.5vh,2.8rem);margin-bottom:clamp(.3rem,.7vh,.5rem)">📱</div>
+            <div id="bigCouponBox" style="background:#1a1a1a;border:2px dashed #444;border-radius:8px;padding:clamp(.5rem,1.2vh,.9rem);cursor:pointer;transition:all .3s;font-family:'Barlow Condensed',sans-serif;font-size:clamp(.82rem,1.4vh,1.05rem);color:#666;width:100%" onclick="bigSimulateScan()">
               Apuntá el QR o código<br>de barras al escáner
             </div>
-            <div id="bigCouponStatus" style="margin:.4rem 0;font-size:.8rem;color:#555;font-family:'Barlow Condensed',sans-serif">Esperando lectura...</div>
-            <button id="bigCouponBtn" class="proto-btn proto-btn-primary" onclick="bigProtoNav(5,2)" style="display:none;font-size:.9rem">¡-20% aplicado! Continuar →</button>
-            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(5,0)" style="margin-top:.3rem;font-size:.85rem">← Volver</button>
+            <div id="bigCouponStatus" style="margin:clamp(.3rem,.7vh,.5rem) 0;font-size:clamp(.75rem,1.2vh,.95rem);color:#555;font-family:'Barlow Condensed',sans-serif">Esperando lectura...</div>
+            <button id="bigCouponBtn" class="proto-btn proto-btn-primary" onclick="bigApplyCouponAndContinue()" style="display:none;font-size:clamp(.85rem,1.5vh,1.1rem)">¡-20% aplicado! Continuar →</button>
+            <button class="proto-btn proto-btn-secondary" onclick="bigProtoNav(5, bigCart.length > 0 ? 2 : 0)" style="margin-top:clamp(.3rem,.7vh,.5rem);font-size:clamp(.82rem,1.4vh,1.05rem)">← Volver</button>
           </div>
 
         </div><!-- end screen -->
+
+        <!-- Persistent cart bar — appears when cart has items, on steps 0 & 1 -->
+        <div id="bigCartBar" onclick="bigGoToCart()">
+          <div style="display:flex;align-items:center;gap:clamp(.4rem,.8vw,.6rem)">
+            <span style="font-size:clamp(1rem,1.8vh,1.4rem)">🛒</span>
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.85rem,1.5vh,1.1rem);color:white;line-height:1.1" id="bigCartCount">0 productos</div>
+              <div style="font-size:clamp(.65rem,1.1vh,.85rem);color:rgba(255,255,255,.7);line-height:1">Ver pedido</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:clamp(.4rem,.8vw,.6rem)">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2vh,1.5rem);color:var(--gold)" id="bigCartTotal">$0</div>
+            <div style="background:var(--gold);color:#000;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.75rem,1.3vh,1rem);padding:clamp(.2rem,.45vh,.35rem) clamp(.5rem,1vw,.7rem);border-radius:6px">Ver →</div>
+          </div>
+        </div>
 
         <!-- Nav dots -->
         <div class="proto-nav" id="bigProtoDots">
@@ -902,7 +1006,7 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
       <!-- Mercado Pago -->
       <div class="payment-card reveal" data-delay="2" style="background:#009EE3;border-color:#007bb5">
         <div style="background:white;border-radius:10px;padding:.5rem 1rem;display:flex;align-items:center;justify-content:center;min-height:52px;width:100%">
-          <img src="assets/mp-logo.png" alt="Mercado Pago" style="height:36px;width:auto;max-height:36px;object-fit:contain">
+          <img src="assets/mercadopago-logo-transparente.png" alt="Mercado Pago" style="height:36px;width:auto;max-height:36px;object-fit:contain">
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vw,1.35rem);color:white">QR Mercado Pago</div>
         <div style="font-size:var(--small-size);color:rgba(255,255,255,.85)">QR en pantalla. Tango Restó ya tiene integración nativa con MP.</div>
@@ -912,7 +1016,7 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
       <!-- MODO -->
       <div class="payment-card reveal" data-delay="3" style="background:#fff;border-color:#ddd">
         <div style="display:flex;align-items:center;justify-content:center;min-height:52px;width:100%;padding:.3rem">
-          <img src="assets/modo-logo.png" alt="MODO" style="height:40px;width:auto;max-height:40px;object-fit:contain">
+          <img src="assets/modo-logo-transparente.png" alt="MODO" style="height:40px;width:auto;max-height:40px;object-fit:contain">
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vw,1.35rem);color:#1a1a1a">QR MODO</div>
         <div style="font-size:var(--small-size);color:#555">Red de pagos digitales de los bancos argentinos. QR interoperable con todas las billeteras.</div>
@@ -921,16 +1025,8 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
 
       <!-- Payway / Tarjeta -->
       <div class="payment-card reveal" data-delay="4" style="background:#003087;border-color:#002060">
-        <div style="background:#003087;border-radius:10px;padding:.5rem 1rem;display:flex;align-items:center;justify-content:center;min-height:52px;width:100%">
-          <!-- Payway SVG logo (white, fits on dark blue bg) -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 249 71" style="height:36px;width:auto;max-height:36px" aria-label="Payway">
-            <g fill="#FFF" fill-rule="evenodd">
-              <path d="M1.248 19.402l10.154 6.004 20.673-12.228V1.165L1.248 19.402zm10.154 6.924a.423.423 0 0 1-.21-.058L.209 19.771A.425.425 0 0 1 0 19.402c0-.154.078-.294.209-.371L32.28.057a.41.41 0 0 1 .416 0c.13.076.21.217.21.37v12.996a.43.43 0 0 1-.21.37L11.61 26.268a.42.42 0 0 1-.207.058z"/>
-              <path d="M32.657 12.639l20.676 11.708 10.137-5.774L32.642 1.116l.015 11.523zm20.676 12.59a.445.445 0 0 1-.21-.056L32.032 13.23a.4.4 0 0 1-.208-.353L31.811.409c0-.146.08-.28.207-.354a.424.424 0 0 1 .416 0l32.074 18.164c.127.072.21.208.21.353 0 .147-.08.282-.21.355L53.54 25.173a.444.444 0 0 1-.208.056zM.864 19.799L.849 55.887l10.36-5.938.005-24.205L.864 19.8zm-.44 37.24A.424.424 0 0 1 0 56.619l.015-37.55c0-.152.08-.29.21-.364a.429.429 0 0 1 .424 0l11.204 6.433a.418.418 0 0 1 .213.366l-.009 24.689a.42.42 0 0 1-.213.366L.64 56.984a.44.44 0 0 1-.215.056z"/>
-              <path d="M32.644 37.676l20.272 11.65-.003-23.302-20.27-11.725v23.377zm20.688 12.782a.418.418 0 0 1-.21-.056L32.017 38.274a.414.414 0 0 1-.206-.358V13.578a.415.415 0 0 1 .625-.358L53.54 25.425a.42.42 0 0 1 .206.36l.003 24.258c0 .15-.08.285-.21.359a.415.415 0 0 1-.207.056z"/>
-              <path d="M12.21 49.907l20.154 11.716 20.142-11.717-20.13-11.714L12.21 49.907zm20.154 12.617a.423.423 0 0 1-.208-.055l-20.982-12.2a.42.42 0 0 1-.205-.362.42.42 0 0 1 .205-.362L32.17 37.35a.415.415 0 0 1 .41 0L53.54 49.545a.413.413 0 0 1 0 .721L32.57 62.469a.414.414 0 0 1-.206.055zM144.965 47.93V26.56c0-.453.16-.828.48-1.149a1.544 1.544 0 0 1 1.146-.482h3.185c.47 0 .864.155 1.172.482.323.321.482.696.482 1.148v21.336c0 .446-.165.827-.492 1.141-.324.306-.707.47-1.162.47h-3.185c-.439 0-.828-.154-1.146-.448a1.507 1.507 0 0 1-.48-1.129zM156.348 43.212c0-.673.195-1.155.598-1.44.4-.302.79-.433 1.162-.433h2.043c1.03 0 1.805.554 2.35 1.67.535 1.128 1.74 1.679 3.614 1.679l6.003.12c2.012 0 3.014-.654 3.014-1.975 0-.993-1.222-1.767-3.689-2.348-1.086-.25-2.305-.516-3.624-.774a40.932 40.932 0 0 1-3.955-.97c-1.308-.393-2.51-.841-3.61-1.377a6.981 6.981 0 0 1-2.667-2.162c-.677-.915-1.013-2.004-1.013-3.253 0-2.29.807-4.06 2.447-5.3 1.631-1.237 4.442-1.86 8.434-1.86l4.351.11c2.35 0 4.454.59 6.335 1.803 1.881 1.208 2.816 2.703 2.816 4.515 0 .673-.193 1.165-.593 1.465-.404.284-.778.442-1.146.442h-2.043c-1.029 0-1.813-.565-2.35-1.692-.543-1.13-1.74-1.69-3.612-1.69l-5.165-.104c-2.013 0-3.012.656-3.012 1.975 0 .717.631 1.302 1.905 1.759 1.276.465 2.822.87 4.633 1.213 1.807.35 3.628.767 5.457 1.257 1.826.494 3.378 1.299 4.648 2.43 1.278 1.12 1.915 2.527 1.915 4.208 0 2.3-.815 4.07-2.458 5.312-1.643 1.236-4.448 1.85-8.427 1.85l-5.2-.101c-2.339 0-4.453-.596-6.334-1.808-1.885-1.201-2.827-2.708-2.827-4.521M186.497 47.861V26.585a1.6 1.6 0 0 1 .466-1.173 1.5 1.5 0 0 1 1.13-.483h6.982c.44 0 .86.156 1.263.483.4.32.67.695.805 1.147l5.057 14.636 5.057-14.636c.134-.452.404-.827.813-1.147.395-.327.813-.483 1.26-.483h6.976c.45 0 .819.156 1.122.483.305.32.455.706.455 1.173v21.276a1.598 1.598 0 0 1-1.607 1.646h-3.082c-.452 0-.828-.165-1.146-.47-.318-.315-.466-.701-.466-1.176V31.112l-6.056 16.853c-.153.417-.44.784-.838 1.093-.395.294-.82.449-1.271.449h-2.45c-.447 0-.866-.155-1.26-.449a2.692 2.692 0 0 1-.851-1.093l-6.034-16.853v16.749c0 .475-.158.861-.465 1.176-.321.305-.696.47-1.141.47h-3.088c-.443 0-.827-.165-1.151-.47a1.593 1.593 0 0 1-.48-1.176M100.262 25.155H87.178c-.44 0-.82.152-1.127.483a1.593 1.593 0 0 0-.469 1.145v21.335c0 .45.162.837.48 1.15.322.312.705.463 1.156.463h3.221c.445 0 .824-.151 1.135-.463.311-.313.475-.7.475-1.15v-18.11h6.25c1.921 0 3.385.32 4.384.969.986.636 1.487 1.377 1.487 3.215 0 1.854-.5 3.096-1.487 3.749-.999.643-2.463.958-4.384.958 0 0-2.814-.232-2.814 2.319v2.538h4.777c6.913 0 10.374-3.184 10.374-9.564 0-6.363-3.46-9.037-10.374-9.037M236.17 38.71s-2.82-.276-2.82 2.259v2.57h8.774v4.357c0 .462.148.853.455 1.163.3.294.684.448 1.156.448h3.22c.449 0 .834-.154 1.157-.448.316-.31.477-.685.477-1.13V26.518c0-.422-.145-.785-.42-1.105a1.318 1.318 0 0 0-1.05-.482h-9.244c-6.424.009-10.217 2.24-11.385 6.683l-4.31 16.317c-.03.144-.044.319-.054.517-.006.189.09.417.28.673.2.268.513.387.963.387h3.378c.45 0 .872-.154 1.274-.448a2.09 2.09 0 0 0 .769-1.163l1.152-4.321 1.263-4.856 1.509-5.497c.288-1.058.834-1.884 1.655-2.505.818-.63 1.773-.931 2.87-.931h4.885v8.925h-5.954z"/>
-            </g>
-          </svg>
+        <div style="background:white;border-radius:10px;padding:.5rem 1rem;display:flex;align-items:center;justify-content:center;min-height:52px;width:100%">
+          <img src="assets/payway-logo-transparente.png" alt="Payway" style="height:36px;width:auto;max-height:36px;object-fit:contain">
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vw,1.35rem);color:white">Tarjeta · Payway PINpad</div>
         <div style="font-size:var(--small-size);color:rgba(255,255,255,.85)">Posnet integrado (PINpad). Visa, Mastercard, Amex, débito. Compatible con Tango PV.</div>
@@ -1599,6 +1695,93 @@ function autoSlideNumbers() {
 }
 document.addEventListener('DOMContentLoaded', autoSlideNumbers);
 
+/* ===== BIG PROTOTYPE — CART STATE ===== */
+let bigCart = [];       // [{id, name, price, emoji, qty}]
+let bigDiscount = 0;   // 0 or 0.2 (20% off from coupon)
+
+function bigCartTotal() {
+  const sub = bigCart.reduce((s, i) => s + i.price * i.qty, 0);
+  return Math.round(sub * (1 - bigDiscount));
+}
+function bigCartCount() {
+  return bigCart.reduce((s, i) => s + i.qty, 0);
+}
+
+function bigAddToCart(id, name, price, emoji) {
+  const ex = bigCart.find(i => i.id === id);
+  if (ex) ex.qty++;
+  else bigCart.push({id, name, price, emoji, qty: 1});
+
+  // Animate "+" button
+  const btn = document.getElementById('badd-' + id);
+  if (btn) { btn.classList.remove('big-add-bounce'); void btn.offsetWidth; btn.classList.add('big-add-bounce'); }
+
+  // Update qty badge
+  const badge = document.getElementById('bqty-' + id);
+  if (badge) {
+    const item = bigCart.find(i => i.id === id);
+    badge.textContent = item.qty;
+    badge.classList.add('show');
+  }
+  bigUpdateCartBar();
+}
+
+function bigUpdateCartBar() {
+  const bar   = document.getElementById('bigCartBar');
+  const count = document.getElementById('bigCartCount');
+  const total = document.getElementById('bigCartTotal');
+  if (!bar) return;
+  const n = bigCartCount();
+  const t = bigCartTotal();
+  if (n === 0 || (bigCurrentStep !== 0 && bigCurrentStep !== 1)) {
+    bar.style.display = 'none';
+  } else {
+    bar.style.display = 'flex';
+    if (count) count.textContent = n + (n === 1 ? ' producto' : ' productos');
+    if (total) total.textContent = '$' + t.toLocaleString('es-AR');
+  }
+}
+
+function bigGoToCart() {
+  bigRenderCartReview();
+  bigProtoNav(bigCurrentStep, 2);
+}
+
+function bigRenderCartReview() {
+  const el      = document.getElementById('bps2CartItems');
+  const totalEl = document.getElementById('bps2Total');
+  const discRow = document.getElementById('bps2DiscountRow');
+  if (!el) return;
+
+  if (bigCart.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:.5rem;font-size:clamp(.8rem,1.3vh,1rem)">Tu carrito está vacío</div>';
+  } else {
+    el.innerHTML = bigCart.map(i => `
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:clamp(.8rem,1.4vh,1.05rem);padding:clamp(.25rem,.5vh,.4rem) 0;border-bottom:1px solid #252525">
+        <span>${i.emoji} ${i.name} <span style="color:var(--text-muted)">×${i.qty}</span></span>
+        <span style="color:var(--gold);font-weight:700;font-family:'Barlow Condensed',sans-serif">$${(i.price * i.qty).toLocaleString('es-AR')}</span>
+      </div>
+    `).join('');
+  }
+
+  if (discRow) {
+    if (bigDiscount > 0) {
+      discRow.style.display = 'block';
+      discRow.textContent = '🏷️ Cupón -20% aplicado';
+    } else {
+      discRow.style.display = 'none';
+    }
+  }
+
+  if (totalEl) totalEl.textContent = '$' + bigCartTotal().toLocaleString('es-AR');
+}
+
+function bigApplyCouponAndContinue() {
+  bigDiscount = 0.20;
+  bigRenderCartReview();
+  bigProtoNav(5, 2);
+}
+
 /* ===== BIG PROTOTYPE LOGIC ===== */
 let bigCurrentStep = 0;
 let qrTimerInterval = null;
@@ -1614,10 +1797,23 @@ function bigProtoNav(from, to) {
   toEl.classList.add('active');
   bigCurrentStep = to;
   updateBigDots();
+  bigUpdateCartBar();
+  if (to === 2) bigRenderCartReview(); // Always sync cart view
 
-  // Start QR timer when entering payment step
-  if (to === 3) startQRTimer();
-  else stopQRTimer();
+  // Start QR timer when entering payment step; update success total
+  if (to === 3) {
+    startQRTimer();
+    const mpT = document.getElementById('payMpTotal');
+    if (mpT) mpT.textContent = '$' + bigCartTotal().toLocaleString('es-AR');
+  } else {
+    stopQRTimer();
+  }
+  if (to === 4) {
+    const t = document.getElementById('bps4Total');
+    if (t) t.textContent = '$' + bigCartTotal().toLocaleString('es-AR');
+    const o = document.getElementById('bps4Order');
+    if (o) o.textContent = '#' + (200 + Math.floor(Math.random() * 99));
+  }
 }
 
 function updateBigDots() {
@@ -1717,6 +1913,14 @@ function bigProtoReset() {
   if (box)    { box.classList.remove('scanned'); box.style.borderColor = '#444'; box.style.borderStyle = 'dashed'; box.style.color = '#666'; box.textContent = 'Apuntá el QR o código\nde barras al escáner'; }
   if (status) { status.style.color = '#555'; status.textContent = 'Esperando lectura...'; }
   if (btn)    btn.style.display = 'none';
+  // Reset cart & discount
+  bigCart = [];
+  bigDiscount = 0;
+  for (let i = 0; i <= 4; i++) {
+    const badge = document.getElementById('bqty-' + i);
+    if (badge) badge.classList.remove('show');
+  }
+  bigUpdateCartBar();
   // Reset payment tabs
   switchPayTab('mp');
   bigCurrentStep = 0;
