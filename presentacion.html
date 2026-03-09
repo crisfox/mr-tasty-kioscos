@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Tasty – Kioscos de Autogestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Barlow+Condensed:wght@400;600;700&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+/* ===== VIEWPORT BASE (mandatory) ===== */
+html,body{height:100%;overflow-x:hidden}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;flex-direction:column;position:relative}
+.slide-content{flex:1;display:flex;flex-direction:column;justify-content:center;max-height:100%;overflow:hidden;padding:var(--slide-padding)}
+img,.image-container{max-width:100%;max-height:min(50vh,400px);object-fit:contain}
+@media(max-height:700px){:root{--slide-padding:clamp(.75rem,3vw,2rem);--content-gap:clamp(.4rem,1.5vw,1rem);--title-size:clamp(1.25rem,4.5vw,2.5rem);--h2-size:clamp(1rem,3vw,1.75rem)}}
+@media(max-height:600px){:root{--slide-padding:clamp(.5rem,2.5vw,1.5rem);--content-gap:clamp(.3rem,1vw,.75rem);--title-size:clamp(1.1rem,4vw,2rem);--body-size:clamp(.7rem,1.2vw,.95rem)}.nav-dots,.keyboard-hint,.decorative{display:none}}
+@media(max-height:500px){:root{--slide-padding:clamp(.4rem,2vw,1rem);--title-size:clamp(1rem,3.5vw,1.5rem);--h2-size:clamp(.9rem,2.5vw,1.25rem);--body-size:clamp(.65rem,1vw,.85rem)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+
+/* ===== THEME ===== */
+:root{
+  --red:#CC0000;
+  --red-bright:#ff1a1a;
+  --gold:#FFB800;
+  --gold-dark:#e5a500;
+  --bg:#0d0d0d;
+  --bg2:#161616;
+  --bg3:#1e1e1e;
+  --bg4:#252525;
+  --text:#f5f5f5;
+  --text-muted:#888;
+  --text-dim:#555;
+  --border:rgba(255,255,255,.08);
+  --slide-padding:clamp(1.2rem,4vw,4rem);
+  --content-gap:clamp(.6rem,2vw,2rem);
+  --title-size:clamp(2rem,5.5vw,4.5rem);
+  --h2-size:clamp(1.4rem,3.5vw,2.8rem);
+  --h3-size:clamp(1rem,2.2vw,1.6rem);
+  --body-size:clamp(.75rem,1.4vw,1.05rem);
+  --small-size:clamp(.65rem,1vw,.85rem);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:var(--body-size)}
+h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-height:1.05}
+.barlow-cond{font-family:'Barlow Condensed',sans-serif}
+
+/* ===== GLOBAL DECORATIVE ===== */
+.grid-bg::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.red-line{width:60px;height:4px;background:var(--red);border-radius:2px;margin-bottom:.8rem}
+.gold-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:.5rem}
+
+/* ===== PROGRESS BAR ===== */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),var(--gold));z-index:9999;transition:width .4s var(--ease);width:0}
+
+/* ===== NAV DOTS ===== */
+.nav-dots{position:fixed;right:clamp(12px,2vw,24px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:9998}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--border);border:1.5px solid var(--text-dim);cursor:pointer;transition:all .3s var(--ease);display:block}
+.nav-dot.active{background:var(--gold);border-color:var(--gold);transform:scale(1.4)}
+.nav-dot:hover{background:var(--red);border-color:var(--red)}
+
+/* ===== SLIDE NUMBER ===== */
+.slide-num{position:absolute;bottom:clamp(.8rem,2vw,1.5rem);right:clamp(1rem,3vw,3rem);font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);color:var(--text-dim);letter-spacing:.1em;z-index:10}
+
+/* ===== ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal-scale{opacity:0;transform:scale(.92);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.slide.visible .reveal,.slide.visible .reveal-left,.slide.visible .reveal-right,.slide.visible .reveal-scale{opacity:1;transform:none}
+.slide.visible .reveal:nth-child(2),.slide.visible .reveal-left:nth-child(2),.slide.visible .reveal-right:nth-child(2){transition-delay:.12s}
+.slide.visible .reveal:nth-child(3),.slide.visible .reveal-left:nth-child(3),.slide.visible .reveal-right:nth-child(3){transition-delay:.22s}
+.slide.visible .reveal:nth-child(4),.slide.visible .reveal-left:nth-child(4){transition-delay:.32s}
+.slide.visible .reveal:nth-child(5){transition-delay:.42s}
+.slide.visible .reveal:nth-child(6){transition-delay:.52s}
+[data-delay="1"]{transition-delay:.1s!important}
+[data-delay="2"]{transition-delay:.2s!important}
+[data-delay="3"]{transition-delay:.3s!important}
+[data-delay="4"]{transition-delay:.4s!important}
+[data-delay="5"]{transition-delay:.5s!important}
+[data-delay="6"]{transition-delay:.6s!important}
+[data-delay="7"]{transition-delay:.7s!important}
+[data-delay="8"]{transition-delay:.8s!important}
+
+/* ===== CARDS ===== */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:clamp(.8rem,1.8vw,1.4rem);transition:border-color .3s,transform .3s}
+.card:hover{border-color:rgba(204,0,0,.4);transform:translateY(-2px)}
+.card.gold-border{border-color:rgba(255,184,0,.3)}
+.card.red-border{border-color:rgba(204,0,0,.5);background:rgba(204,0,0,.06)}
+
+/* ===== TAG / BADGE ===== */
+.tag{display:inline-block;padding:.25em .7em;border-radius:100px;font-size:var(--small-size);font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tag-red{background:rgba(204,0,0,.2);color:#ff6666;border:1px solid rgba(204,0,0,.4)}
+.tag-gold{background:rgba(255,184,0,.15);color:var(--gold);border:1px solid rgba(255,184,0,.3)}
+.tag-green{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.tag-blue{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.3)}
+
+/* ===== COMPLEXITY INDICATOR ===== */
+.complexity{display:flex;gap:4px;align-items:center}
+.complexity-dot{width:10px;height:10px;border-radius:50%}
+.c-low .complexity-dot:nth-child(-n+1){background:#4ade80}
+.c-low .complexity-dot:nth-child(n+2){background:var(--bg4)}
+.c-med .complexity-dot:nth-child(-n+2){background:var(--gold)}
+.c-med .complexity-dot:nth-child(n+3){background:var(--bg4)}
+.c-high .complexity-dot{background:var(--red)}
+
+/* ===== TWO-COL LAYOUT ===== */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.8rem,2vw,2rem);align-items:start}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(.6rem,1.5vw,1.5rem)}
+
+/* ===== SECTION LABEL ===== */
+.section-label{font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem}
+
+/* ===== STAT BOX ===== */
+.stat-box{text-align:center;padding:clamp(.6rem,1.5vw,1.2rem);background:var(--bg3);border-radius:10px;border:1px solid var(--border)}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3.2rem);line-height:1;color:var(--gold)}
+.stat-label{font-size:var(--small-size);color:var(--text-muted);margin-top:.3rem}
+
+/* ===== FLOW DIAGRAM ===== */
+.flow-node{background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:.6rem 1rem;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:clamp(.7rem,1.3vw,1rem);font-weight:600;position:relative}
+.flow-arrow{color:var(--red);font-size:1.3rem;text-align:center;line-height:1}
+.flow-node.highlight{border-color:var(--gold);background:rgba(255,184,0,.08);color:var(--gold)}
+.flow-node.red-node{border-color:var(--red);background:rgba(204,0,0,.08)}
+
+/* ===== TIMELINE ===== */
+.timeline-item{display:flex;gap:1rem;align-items:flex-start}
+.timeline-dot-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.t-dot{width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid var(--red-bright);flex-shrink:0}
+.t-line{width:2px;flex:1;background:linear-gradient(to bottom,var(--red),transparent);min-height:20px;margin-top:2px}
+
+/* ===== BUDGET BAR ===== */
+.budget-bar-wrap{margin-bottom:.5rem}
+.budget-bar-label{display:flex;justify-content:space-between;margin-bottom:.3rem;font-size:var(--small-size)}
+.budget-bar-track{height:10px;background:var(--bg4);border-radius:5px;overflow:hidden}
+.budget-bar-fill{height:100%;border-radius:5px;transition:width 1.2s var(--ease)}
+
+/* ===== PAYMENT CARD ===== */
+.payment-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:clamp(.8rem,1.5vw,1.4rem);background:var(--bg3);border-radius:14px;border:1px solid var(--border);text-align:center}
+.payment-icon{font-size:clamp(1.6rem,3vw,2.4rem);line-height:1}
+
+/* ===== SLIDE 1 – PORTADA ===== */
+#s1{background:var(--bg);overflow:hidden}
+#s1::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(204,0,0,.15) 0%,transparent 60%),radial-gradient(ellipse at 20% 80%,rgba(255,184,0,.08) 0%,transparent 50%);pointer-events:none;z-index:0}
+.s1-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;height:100vh;padding:var(--slide-padding) clamp(2rem,8vw,8rem)}
+.logo-wrap{display:flex;align-items:center;gap:clamp(.8rem,2vw,1.5rem);margin-bottom:clamp(.8rem,2vh,1.5rem)}
+.logo-svg{width:clamp(60px,8vw,90px);height:clamp(60px,8vw,90px);filter:drop-shadow(0 0 20px rgba(255,184,0,.5))}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,7vw,5.5rem);line-height:.9;letter-spacing:.05em}
+.logo-text span{color:var(--gold)}
+.s1-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4.5vw,3.8rem);line-height:1.05;color:var(--text);max-width:700px;margin-bottom:.8rem}
+.s1-title em{color:var(--red);font-style:normal}
+.s1-sub{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.85rem,1.8vw,1.3rem);color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:clamp(1rem,3vh,2rem)}
+.s1-pills{display:flex;gap:.6rem;flex-wrap:wrap}
+.pill{padding:.4em 1em;border-radius:100px;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);letter-spacing:.08em;font-weight:600;text-transform:uppercase}
+.pill-red{background:rgba(204,0,0,.2);border:1px solid rgba(204,0,0,.5);color:#ff8080}
+.pill-gold{background:rgba(255,184,0,.15);border:1px solid rgba(255,184,0,.4);color:var(--gold)}
+.pill-white{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:var(--text-muted)}
+.s1-bg-text{position:absolute;right:-2vw;top:50%;transform:translateY(-50%);font-family:'Bebas Neue',sans-serif;font-size:clamp(8rem,20vw,18rem);color:rgba(255,255,255,.02);line-height:1;pointer-events:none;user-select:none;z-index:0;letter-spacing:.05em}
+.s1-year{position:absolute;bottom:clamp(.8rem,2vw,2rem);right:clamp(1.5rem,4vw,4rem);font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);color:var(--text-dim);letter-spacing:.15em}
+
+/* ===== SLIDE 2 – DESAFIO ===== */
+#s2{background:var(--bg2)}
+#s2::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.problem-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:clamp(.8rem,1.8vw,1.5rem);border-top:3px solid var(--red);transition:transform .3s,box-shadow .3s}
+.problem-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(204,0,0,.2)}
+.problem-icon{font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:.5rem;display:block}
+.problem-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.1rem,2.2vw,1.7rem);color:var(--red);margin-bottom:.3rem}
+.problem-stat{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.85rem,1.5vw,1.15rem);color:var(--text);margin-bottom:.2rem}
+.problem-desc{font-size:var(--small-size);color:var(--text-muted);line-height:1.5}
+
+/* ===== SLIDE 3 – SOLUCION ===== */
+#s3{background:var(--bg)}
+.big-counter{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,14vw,11rem);line-height:.9;color:transparent;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;background-clip:text;letter-spacing:.04em}
+.sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.5rem,1.5vw,1.2rem)}
+
+/* ===== SLIDE 4 – TANGO ===== */
+#s4{background:var(--bg2)}
+.api-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;background:#0d1117;border:1px solid #30363d;border-radius:8px;font-family:'Barlow Condensed',monospace;font-size:var(--small-size);color:#8b949e;margin:.5rem 0}
+.api-badge .repo{color:#58a6ff}
+.api-event{display:flex;align-items:center;gap:.6rem;padding:.35rem .8rem;background:var(--bg4);border-radius:6px;border-left:3px solid var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size)}
+.api-event .evt-name{color:var(--gold);font-weight:700;font-size:clamp(.7rem,1.2vw,.95rem)}
+.api-event .evt-desc{color:var(--text-muted)}
+
+/* ===== SLIDE 5 – ARQUITECTURA ===== */
+#s5{background:#0a0a0f}
+#s5::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(204,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(204,0,0,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.arch-flow{display:flex;align-items:stretch;gap:0;width:100%;max-width:900px;margin:0 auto}
+.arch-node{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:clamp(.5rem,1vw,.9rem);text-align:center}
+.arch-box{background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;padding:.5rem .7rem;width:100%;margin-bottom:.4rem;font-family:'Barlow Condensed',sans-serif;font-size:clamp(.65rem,1.1vw,.9rem);font-weight:600;min-height:50px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem}
+.arch-box.core{border-color:var(--gold);background:rgba(255,184,0,.08)}
+.arch-box.input{border-color:var(--red);background:rgba(204,0,0,.06)}
+.arch-box.output{border-color:#4ade80;background:rgba(74,222,128,.05)}
+.arch-icon{font-size:clamp(1rem,2vw,1.5rem)}
+.arch-label{font-size:var(--small-size);color:var(--text-muted);line-height:1.3}
+.arch-arrow{display:flex;align-items:center;padding:0 .2rem;color:var(--text-dim);font-size:1.2rem;flex-shrink:0}
+.arch-split{display:flex;flex-direction:column;gap:.5rem;flex:1}
+
+/* ===== SLIDE 6 – FISCAL ===== */
+#s6{background:var(--bg2)}
+.fiscal-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:clamp(.7rem,1.5vw,1.2rem);position:relative;overflow:hidden}
+.fiscal-card.recommended{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04)}
+.fiscal-card.recommended::after{content:'RECOMENDADA';position:absolute;top:12px;right:12px;font-family:'Barlow Condensed',sans-serif;font-size:clamp(.55rem,.9vw,.75rem);font-weight:700;letter-spacing:.1em;padding:.2em .6em;background:rgba(74,222,128,.2);border:1px solid rgba(74,222,128,.4);border-radius:100px;color:#4ade80}
+.fiscal-opt-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.5rem,3vw,2.2rem);color:var(--text-dim);line-height:1}
+.fiscal-opt-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.85rem,1.5vw,1.15rem);font-weight:700;color:var(--text);margin:.2rem 0}
+.fiscal-opt-desc{font-size:var(--small-size);color:var(--text-muted);line-height:1.5}
+.complexity-wrap{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+.complexity-label{font-size:var(--small-size);color:var(--text-muted)}
+
+/* ===== SLIDE 7 – PAGOS ===== */
+#s7{background:var(--bg)}
+.payment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(.7rem,1.5vw,1.3rem)}
+.pay-logo-mp{width:clamp(50px,6vw,70px);height:auto}
+
+/* ===== SLIDE 8 – CUPONES ===== */
+#s8{background:var(--bg2)}
+.coupon-flow{display:flex;align-items:center;justify-content:center;gap:clamp(.4rem,1vw,.8rem);flex-wrap:wrap}
+.coupon-step{text-align:center;max-width:130px}
+.coupon-step-icon{font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:.3rem}
+.coupon-step-label{font-size:var(--small-size);color:var(--text-muted);line-height:1.3}
+.coupon-arrow{color:var(--red);font-size:1.4rem}
+
+/* ===== SLIDE 9 – HARDWARE ===== */
+#s9{background:#0a0a0f}
+.hw-kiosk-svg{width:clamp(100px,14vw,160px);margin:0 auto;display:block}
+.spec-row{display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid var(--border)}
+.spec-row:last-child{border-bottom:none}
+.spec-key{font-size:var(--small-size);color:var(--text-muted)}
+.spec-val{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.3vw,1rem);font-weight:600;color:var(--text)}
+
+/* ===== SLIDE 10 – PRESUPUESTO HW ===== */
+#s10{background:var(--bg2)}
+
+/* ===== SLIDE 11 – PRESUPUESTO SW ===== */
+#s11{background:var(--bg)}
+
+/* ===== SLIDE 12 – TOTAL ===== */
+#s12{background:#0a0a0f;overflow:hidden}
+#s12::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(204,0,0,.12) 0%,transparent 55%),radial-gradient(ellipse at 80% 30%,rgba(255,184,0,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+.total-amount{font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,10vw,8rem);line-height:1;color:transparent;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;background-clip:text}
+
+/* ===== SLIDE 13 – RECURRENTES ===== */
+#s13{background:var(--bg2)}
+.monthly-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,6vw,5rem);color:var(--gold);line-height:1}
+
+/* ===== SLIDE 14 – ROI ===== */
+#s14{background:#0a0a0f}
+#roi-chart{width:100%;height:clamp(140px,22vh,240px);display:block}
+
+/* ===== SLIDE 15 – CRONOGRAMA ===== */
+#s15{background:var(--bg2)}
+.phase-bar{height:clamp(20px,3vh,32px);border-radius:4px;background:linear-gradient(90deg,var(--red),var(--gold));transition:width 1.4s var(--ease);width:0}
+.phase-row{display:grid;grid-template-columns:160px 1fr 60px;gap:.5rem;align-items:center;margin-bottom:.4rem}
+.phase-name{font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);font-weight:600}
+.phase-months{font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);color:var(--text-dim);text-align:right}
+
+/* ===== SLIDE 16 – BENEFICIOS ===== */
+#s16{background:var(--bg)}
+.benefit-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:clamp(.7rem,1.5vw,1.2rem);border-bottom:3px solid var(--red);transition:transform .3s,border-color .3s}
+.benefit-card:hover{transform:translateY(-3px);border-color:var(--gold)}
+.benefit-icon{font-size:clamp(1.4rem,2.5vw,2rem);margin-bottom:.4rem}
+.benefit-metric{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,2.5vw,2rem);color:var(--gold);line-height:1}
+.benefit-desc{font-size:var(--small-size);color:var(--text-muted);line-height:1.4;margin-top:.2rem}
+
+/* ===== SLIDE 17 – PROXIMOS PASOS ===== */
+#s17{background:#0a0a0f;overflow:hidden}
+#s17::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 60%,rgba(204,0,0,.1) 0%,transparent 60%);pointer-events:none;z-index:0}
+.step-card{display:flex;gap:1rem;align-items:flex-start;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:clamp(.7rem,1.5vw,1.1rem)}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);color:var(--red);line-height:1;flex-shrink:0;width:40px;text-align:center}
+.step-title{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.9rem,1.6vw,1.2rem);font-weight:700;color:var(--text);margin-bottom:.2rem}
+.step-desc{font-size:var(--small-size);color:var(--text-muted);line-height:1.4}
+
+/* ===== MR. TASTY LOGO (orange bubbly style) ===== */
+.mr-tasty-logo{display:inline-flex;flex-direction:column;align-items:center;line-height:1;cursor:default;user-select:none}
+.mrt-mr{font-family:'Fredoka One',cursive;font-size:clamp(.9rem,2vw,1.6rem);color:#FF9900;text-shadow:0 0 20px rgba(255,153,0,.5),-1px -1px 0 #c06000,1px 1px 0 #c06000;letter-spacing:.08em}
+.mrt-tasty{font-family:'Fredoka One',cursive;font-size:clamp(2rem,5vw,4rem);color:#FF9900;text-shadow:0 0 30px rgba(255,153,0,.6),-2px -2px 0 #c06000,2px 2px 0 #c06000,-2px 2px 0 #c06000,2px -2px 0 #c06000;letter-spacing:.04em;line-height:.95}
+
+/* ===== KIOSK PROTOTYPE PANEL ===== */
+.proto-slide{display:grid;grid-template-columns:1fr 340px;gap:clamp(.8rem,2vw,2rem);height:100%;padding:var(--slide-padding);align-items:center}
+@media(max-width:900px){.proto-slide{grid-template-columns:1fr}}
+.proto-device{background:#111;border-radius:20px;border:2px solid #333;box-shadow:0 0 40px rgba(255,153,0,.15),inset 0 0 20px rgba(0,0,0,.5);overflow:hidden;height:clamp(380px,60vh,520px);display:flex;flex-direction:column;position:relative;flex-shrink:0}
+.proto-topbar{background:linear-gradient(135deg,#CC0000,#990000);padding:.5rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.proto-logo-sm{font-family:'Fredoka One',cursive;font-size:.9rem;color:#FF9900;text-shadow:0 0 8px rgba(255,153,0,.5)}
+.proto-screen{flex:1;overflow:hidden;position:relative}
+.proto-step{position:absolute;inset:0;background:#111;display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.16,1,.3,1),opacity .4s;padding:.7rem}
+.proto-step.active{transform:translateX(0);opacity:1;pointer-events:auto}
+.proto-step.left{transform:translateX(-100%);opacity:0;pointer-events:none}
+.proto-step.right{transform:translateX(100%);opacity:0;pointer-events:none}
+.proto-step-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;color:var(--gold);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid rgba(255,255,255,.08);padding-bottom:.3rem}
+.proto-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.proto-item{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.5rem;cursor:pointer;transition:all .2s;text-align:center}
+.proto-item:hover,.proto-item:active{border-color:var(--red);background:rgba(204,0,0,.1);transform:scale(.97)}
+.proto-item-emoji{font-size:1.4rem;display:block;margin-bottom:.2rem}
+.proto-item-name{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:600;color:var(--text)}
+.proto-item-price{font-size:.7rem;color:var(--gold)}
+.proto-cart{background:#1a1a1a;border-radius:8px;padding:.5rem;margin:.3rem 0}
+.proto-cart-row{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;padding:.2rem 0;border-bottom:1px solid #2a2a2a}
+.proto-cart-row:last-child{border:none}
+.proto-cart-total{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);text-align:right;margin-top:.3rem}
+.proto-btn{width:100%;padding:.45rem;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:.06em;cursor:pointer;transition:all .2s;margin-top:.3rem}
+.proto-btn-primary{background:linear-gradient(135deg,var(--red),#990000);color:white}
+.proto-btn-primary:hover{filter:brightness(1.15);transform:scale(.98)}
+.proto-btn-secondary{background:#2a2a2a;color:var(--text-muted)}
+.proto-btn-secondary:hover{background:#333}
+.proto-pay-opt{display:flex;align-items:center;gap:.6rem;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:.5rem .7rem;cursor:pointer;transition:all .2s;margin-bottom:.35rem}
+.proto-pay-opt:hover{border-color:var(--gold);background:rgba(255,184,0,.08)}
+.proto-pay-opt.selected{border-color:var(--gold);background:rgba(255,184,0,.1)}
+.proto-pay-icon{font-size:1.3rem;flex-shrink:0}
+.proto-pay-label{font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:600}
+.proto-pay-sub{font-size:.65rem;color:var(--text-muted)}
+.proto-qr{background:#fff;border-radius:8px;padding:.5rem;margin:.3rem auto;display:block;width:90px;height:90px}
+.proto-coupon-input{background:#1a1a1a;border:2px dashed #444;border-radius:8px;padding:.5rem;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:.8rem;color:var(--text-muted);cursor:pointer;transition:all .2s;margin:.3rem 0}
+.proto-coupon-input:hover{border-color:var(--gold);color:var(--gold)}
+.proto-coupon-input.scanned{border-color:#4ade80;border-style:solid;color:#4ade80;background:rgba(74,222,128,.08)}
+.proto-status{text-align:center;padding:.4rem;font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:600}
+.proto-nav{display:flex;justify-content:center;gap:.3rem;padding:.3rem;background:#0d0d0d;flex-shrink:0}
+.proto-nav-dot{width:6px;height:6px;border-radius:50%;background:#333;transition:all .3s}
+.proto-nav-dot.active{background:var(--gold);transform:scale(1.3)}
+.proto-label{position:absolute;top:-1.8rem;left:0;right:0;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim)}
+
+/* ===== COUNTER ANIMATION ===== */
+.count-anim{display:inline}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<nav class="nav-dots" id="navDots"></nav>
+
+<!-- ====================================
+     SLIDE 1 – PORTADA
+     ==================================== -->
+<section class="slide" id="s1">
+  <div class="s1-bg-text">KIOSKO</div>
+  <div class="s1-inner">
+    <!-- Mr. Tasty Logo -->
+    <div class="logo-wrap reveal">
+      <div class="mr-tasty-logo" style="background:#2a2a2a;border-radius:16px;padding:.6rem 1.4rem;box-shadow:0 0 30px rgba(255,153,0,.2)">
+        <span class="mrt-mr">MR.</span>
+        <span class="mrt-tasty">TASTY</span>
+      </div>
+    </div>
+
+    <div class="red-line reveal"></div>
+
+    <h1 class="s1-title reveal">
+      Transformación Digital:<br>
+      <em>Kioscos de Autogestión</em>
+    </h1>
+
+    <p class="s1-sub reveal">Propuesta Ejecutiva · Marzo 2026</p>
+
+    <div class="s1-pills reveal">
+      <span class="pill pill-red">60 Locales</span>
+      <span class="pill pill-gold">120 Kioscos</span>
+      <span class="pill pill-white">Tango Restó</span>
+      <span class="pill pill-white">ARCA Fiscal</span>
+      <span class="pill pill-white">Mercado Pago · MODO · Payway</span>
+    </div>
+  </div>
+  <div class="slide-num">01 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 2 – EL DESAFÍO
+     ==================================== -->
+<section class="slide grid-bg" id="s2">
+  <div class="slide-content">
+    <p class="section-label reveal">El problema</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">¿Por qué cambiar?</h2>
+    <p style="color:var(--text-muted);font-size:var(--body-size);margin-bottom:var(--content-gap)" class="reveal">
+      Los modelos tradicionales de atención en mostrador tienen limitaciones críticas que impactan directamente en la rentabilidad.
+    </p>
+    <div class="three-col" style="gap:clamp(.6rem,1.5vw,1.2rem)">
+      <div class="problem-card reveal" data-delay="3">
+        <span class="problem-icon">⏱️</span>
+        <div class="problem-title">Tiempo de Espera</div>
+        <div class="problem-stat">+4 min promedio</div>
+        <div class="problem-desc">Los picos de demanda generan colas que alejan al cliente y reducen la rotación de mesas.</div>
+      </div>
+      <div class="problem-card reveal" data-delay="4">
+        <span class="problem-icon">❌</span>
+        <div class="problem-title">Errores de Pedido</div>
+        <div class="problem-stat">8-12% de órdenes</div>
+        <div class="problem-desc">Los pedidos verbales generan errores de comunicación que elevan costos de reposición y bajan el NPS.</div>
+      </div>
+      <div class="problem-card reveal" data-delay="5">
+        <span class="problem-icon">💸</span>
+        <div class="problem-title">Costo de Personal</div>
+        <div class="problem-stat">2–3 cajeros / local</div>
+        <div class="problem-desc">Costo operativo alto en puestos de caja que pueden ser parcialmente automatizados sin perder calidad.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">02 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 3 – LA SOLUCIÓN + PROTOTIPO
+     ==================================== -->
+<section class="slide" id="s3">
+  <div class="proto-slide">
+    <!-- Left: content -->
+    <div style="display:flex;flex-direction:column;justify-content:center">
+      <p class="section-label reveal">La solución</p>
+      <div class="big-counter reveal" id="counterKioscos" style="font-size:clamp(3rem,10vw,8rem)">120</div>
+      <h2 style="font-size:var(--h2-size);margin-top:.2rem" class="reveal">Kioscos de Autogestión</h2>
+      <p style="color:var(--text-muted);margin-bottom:var(--content-gap)" class="reveal">2 pantallas por local · 60 locales en Argentina</p>
+      <div class="sol-grid reveal" style="max-width:500px">
+        <div class="stat-box">
+          <div class="stat-num">2</div>
+          <div class="stat-label">Kioscos por local</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">60</div>
+          <div class="stat-label">Locales</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">Operación</div>
+        </div>
+      </div>
+    </div>
+    <!-- Right: kiosk prototype -->
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center">
+      <div class="proto-label reveal" data-delay="3">Prototipo Kiosko Interactivo →</div>
+      <div class="proto-device reveal" data-delay="3" style="width:100%">
+        <div class="proto-topbar">
+          <div class="proto-logo-sm">MR. TASTY</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.6)">Mesa / Mostrador</div>
+        </div>
+        <div class="proto-screen" id="protoScreen">
+          <!-- Step 0: Welcome / Categories -->
+          <div class="proto-step active" id="pStep0">
+            <div class="proto-step-title">¿Qué querés comer?</div>
+            <div class="proto-grid">
+              <div class="proto-item" onclick="protoNav(0,1,'right')">
+                <span class="proto-item-emoji">🍔</span>
+                <span class="proto-item-name">Hamburguesas</span>
+                <span class="proto-item-price">desde $8.500</span>
+              </div>
+              <div class="proto-item" onclick="protoNav(0,1,'right')">
+                <span class="proto-item-emoji">🍟</span>
+                <span class="proto-item-name">Papas Fritas</span>
+                <span class="proto-item-price">desde $3.200</span>
+              </div>
+              <div class="proto-item" onclick="protoNav(0,1,'right')">
+                <span class="proto-item-emoji">🥤</span>
+                <span class="proto-item-name">Bebidas</span>
+                <span class="proto-item-price">desde $1.800</span>
+              </div>
+              <div class="proto-item" onclick="protoNav(0,1,'right')">
+                <span class="proto-item-emoji">🎁</span>
+                <span class="proto-item-name">Combos</span>
+                <span class="proto-item-price">desde $12.000</span>
+              </div>
+            </div>
+            <button class="proto-btn proto-btn-secondary" onclick="protoNav(0,5,'right')" style="margin-top:.4rem">🏷️ Tengo un cupón</button>
+          </div>
+          <!-- Step 1: Products -->
+          <div class="proto-step right" id="pStep1">
+            <div class="proto-step-title">🍔 Hamburguesas</div>
+            <div style="display:flex;flex-direction:column;gap:.3rem">
+              <div class="proto-item" style="display:flex;align-items:center;gap:.5rem;text-align:left" onclick="protoNav(1,2,'right')">
+                <span style="font-size:1.6rem">🍔</span>
+                <div><div class="proto-item-name">Tasty Classic</div><div class="proto-item-price">$8.500 · Doble cheddar</div></div>
+              </div>
+              <div class="proto-item" style="display:flex;align-items:center;gap:.5rem;text-align:left" onclick="protoNav(1,2,'right')">
+                <span style="font-size:1.6rem">🔥</span>
+                <div><div class="proto-item-name">Tasty Spicy</div><div class="proto-item-price">$9.200 · Jalapeño + bacon</div></div>
+              </div>
+              <div class="proto-item" style="display:flex;align-items:center;gap:.5rem;text-align:left" onclick="protoNav(1,2,'right')">
+                <span style="font-size:1.6rem">⭐</span>
+                <div><div class="proto-item-name">Tasty Premium</div><div class="proto-item-price">$11.500 · Angus 200g</div></div>
+              </div>
+            </div>
+            <button class="proto-btn proto-btn-secondary" onclick="protoNav(1,0,'left')" style="margin-top:.3rem">← Volver</button>
+          </div>
+          <!-- Step 2: Cart -->
+          <div class="proto-step right" id="pStep2">
+            <div class="proto-step-title">🛒 Tu Pedido</div>
+            <div class="proto-cart">
+              <div class="proto-cart-row"><span>Tasty Classic ×1</span><span style="color:var(--gold)">$8.500</span></div>
+              <div class="proto-cart-row"><span>Papas Medianas ×1</span><span style="color:var(--gold)">$3.200</span></div>
+              <div class="proto-cart-row"><span>Coca-Cola 500ml ×1</span><span style="color:var(--gold)">$2.100</span></div>
+            </div>
+            <div class="proto-cart-total">TOTAL: $13.800</div>
+            <button class="proto-btn proto-btn-primary" onclick="protoNav(2,3,'right')">Ir al pago →</button>
+            <button class="proto-btn proto-btn-secondary" onclick="protoNav(2,5,'right')">🏷️ Agregar cupón</button>
+          </div>
+          <!-- Step 3: Payment -->
+          <div class="proto-step right" id="pStep3">
+            <div class="proto-step-title">💳 Elegí tu pago</div>
+            <div class="proto-pay-opt" onclick="selectPayment(this,'mp')" id="payMp">
+              <div class="proto-pay-icon">🔵</div>
+              <div><div class="proto-pay-label">Mercado Pago QR</div><div class="proto-pay-sub">Escaneá el QR con la app</div></div>
+            </div>
+            <div class="proto-pay-opt" onclick="selectPayment(this,'modo')" id="payModo">
+              <div class="proto-pay-icon">🔷</div>
+              <div><div class="proto-pay-label">MODO</div><div class="proto-pay-sub">Billetera digital bancaria</div></div>
+            </div>
+            <div class="proto-pay-opt" onclick="selectPayment(this,'card')" id="payCard">
+              <div class="proto-pay-icon">💳</div>
+              <div><div class="proto-pay-label">Tarjeta (Payway)</div><div class="proto-pay-sub">Insertá o acercá tu tarjeta</div></div>
+            </div>
+            <button class="proto-btn proto-btn-primary" onclick="protoNav(3,4,'right')" style="margin-top:.2rem">Confirmar → $13.800</button>
+          </div>
+          <!-- Step 4: Confirmed -->
+          <div class="proto-step right" id="pStep4">
+            <div style="text-align:center;padding:.5rem">
+              <div style="font-size:2.5rem;margin-bottom:.4rem">✅</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:#4ade80;margin-bottom:.2rem">¡Pedido Confirmado!</div>
+              <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:.5rem">Tu número de orden:</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold)">#247</div>
+              <div style="font-size:.7rem;color:var(--text-muted);margin:.3rem 0">Ticket fiscal enviado · Tango Restó</div>
+              <div style="font-size:.65rem;background:#1e1e1e;border-radius:6px;padding:.4rem;color:#4ade80;">🧾 CAE: 72849301847293<br>ARCA validado ✓</div>
+            </div>
+            <button class="proto-btn proto-btn-secondary" onclick="protoReset()">← Nuevo pedido</button>
+          </div>
+          <!-- Step 5: Coupon scanner -->
+          <div class="proto-step right" id="pStep5">
+            <div class="proto-step-title">🏷️ Escáner de Cupón</div>
+            <div style="text-align:center;padding:.3rem">
+              <div style="font-size:2rem;margin-bottom:.3rem">📱</div>
+              <div class="proto-coupon-input" id="couponInput" onclick="simulateScan()">
+                Apuntá el cupón QR<br>al escáner del kiosko
+              </div>
+              <div class="proto-status" id="couponStatus" style="color:var(--text-dim);font-size:.7rem">Esperando lectura...</div>
+            </div>
+            <button class="proto-btn proto-btn-primary" id="couponBtn" onclick="protoNav(5,2,'right')" style="display:none">Descuento aplicado · Continuar →</button>
+            <button class="proto-btn proto-btn-secondary" onclick="protoNav(5,0,'left')">← Volver</button>
+          </div>
+        </div>
+        <!-- nav dots -->
+        <div class="proto-nav">
+          <div class="proto-nav-dot active" id="pd0"></div>
+          <div class="proto-nav-dot" id="pd1"></div>
+          <div class="proto-nav-dot" id="pd2"></div>
+          <div class="proto-nav-dot" id="pd3"></div>
+          <div class="proto-nav-dot" id="pd4"></div>
+          <div class="proto-nav-dot" id="pd5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">03 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 4 – TANGO SOFTWARE
+     ==================================== -->
+<section class="slide grid-bg" id="s4">
+  <div class="slide-content">
+    <div class="two-col" style="align-items:start">
+      <div>
+        <p class="section-label reveal">Investigación</p>
+        <h2 style="font-size:var(--h2-size)" class="reveal">Tango Restó</h2>
+        <div style="margin:var(--content-gap) 0;display:flex;flex-direction:column;gap:.5rem">
+          <div class="card red-border reveal" data-delay="2">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#ff8080;margin-bottom:.2rem">✗ Sin Módulo Nativo de Kiosko</div>
+            <div style="font-size:var(--small-size);color:var(--text-muted)">Tango Restó no incluye una interfaz de autogestión para el cliente final.</div>
+          </div>
+          <div class="card gold-border reveal" data-delay="3">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--gold);margin-bottom:.3rem">✓ API Oficial para Integración Externa</div>
+            <div class="api-badge"><span>github.com/</span><span class="repo">TangoSoftware/RestoAperturaComandasMostradorDelivery</span></div>
+            <div style="font-size:var(--small-size);color:var(--text-muted);margin-top:.3rem">Registra en Tango Restó las comandas generadas por apps externas. Versión mínima: T25 25.01.000.2377+</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="section-label reveal" data-delay="2">Eventos de la API</p>
+        <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.4rem">
+          <div class="api-event reveal" data-delay="3"><span class="evt-name">OrderObserved</span><span class="evt-desc">Pedido recibido del kiosko</span></div>
+          <div class="api-event reveal" data-delay="4"><span class="evt-name">OrderProcessed</span><span class="evt-desc">Comanda generada en Tango</span></div>
+          <div class="api-event reveal" data-delay="5"><span class="evt-name">OrderBilled</span><span class="evt-desc">Ticket fiscal emitido</span></div>
+          <div class="api-event reveal" data-delay="6"><span class="evt-name">OrderRejected</span><span class="evt-desc">Error / rechazo del pedido</span></div>
+        </div>
+        <div style="margin-top:.8rem" class="reveal" data-delay="7">
+          <span class="tag tag-green">Auto-envío a cocina</span>&nbsp;
+          <span class="tag tag-gold">Auto-facturación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">04 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 5 – ARQUITECTURA
+     ==================================== -->
+<section class="slide" id="s5">
+  <div class="slide-content" style="align-items:center">
+    <p class="section-label reveal" style="text-align:center">Arquitectura técnica</p>
+    <h2 style="font-size:var(--h2-size);text-align:center;margin-bottom:var(--content-gap)" class="reveal">Flujo Completo del Sistema</h2>
+
+    <!-- Flow diagram -->
+    <div style="width:100%;max-width:860px;position:relative;z-index:1">
+      <!-- Row 1 -->
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:.3rem;margin-bottom:.4rem" class="reveal" data-delay="2">
+        <div class="arch-box input"><span class="arch-icon">📱</span><span>App Kiosko<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">Android · React Native</small></span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box core"><span class="arch-icon">⚙️</span><span>Middleware / Backend<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">REST API · Node.js</small></span></div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box core" style="border-color:var(--gold)"><span class="arch-icon">🗄️</span><span>TANGO RESTÓ<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">T25+ · Nexo Tiendas</small></span></div>
+      </div>
+
+      <!-- Row 2: branches from left, branches from right -->
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:start;gap:.3rem" class="reveal" data-delay="4">
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <div class="arch-box" style="border-color:#3b82f6;background:rgba(59,130,246,.06)"><span class="arch-icon">🏷️</span><span>API Cupones<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">Validación en tiempo real</small></span></div>
+          <div class="arch-box" style="border-color:#8b5cf6;background:rgba(139,92,246,.06)"><span class="arch-icon">💳</span><span>Pasarela de Pagos<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">MP · MODO · Payway</small></span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.1rem;padding-top:20px">↕</div>
+        <div></div>
+        <div style="display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:1.1rem;padding-top:20px">↓</div>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <div class="arch-box output"><span class="arch-icon">👨‍🍳</span><span>Display Cocina<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">KDS · Comanda impresa</small></span></div>
+          <div class="arch-box output"><span class="arch-icon">🧾</span><span>Impresora Fiscal<br><small style="font-weight:400;color:var(--text-muted);font-size:.75em">Hasar / Epson · ARCA</small></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">05 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 6 – TICKET FISCAL
+     ==================================== -->
+<section class="slide grid-bg" id="s6">
+  <div class="slide-content">
+    <p class="section-label reveal">Ticket fiscal · ARCA (ex AFIP)</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">3 Opciones de Integración</h2>
+    <div class="three-col" style="margin-top:var(--content-gap)">
+      <div class="fiscal-card recommended reveal" data-delay="2">
+        <div class="fiscal-opt-num">01</div>
+        <div class="fiscal-opt-title">Vía Tango Restó</div>
+        <div class="fiscal-opt-desc">El kiosko envía el pedido por API → Tango genera el ticket fiscal nativo. Sin desarrollo adicional. Tango ya está homologado por ARCA. Necesita impresora Hasar o Epson conectada.</div>
+        <div class="complexity-wrap">
+          <span class="complexity-label">Complejidad:</span>
+          <div class="complexity c-low">
+            <div class="complexity-dot"></div><div class="complexity-dot"></div><div class="complexity-dot"></div>
+          </div>
+          <span class="tag tag-green" style="margin-left:.3rem">BAJA</span>
+        </div>
+      </div>
+      <div class="fiscal-card reveal" data-delay="3">
+        <div class="fiscal-opt-num">02</div>
+        <div class="fiscal-opt-title">Controlador Fiscal Nueva Tecnología</div>
+        <div class="fiscal-opt-desc">Equipo físico homologado por ARCA. Modelos: Hasar, Epson, Sam4s. Requiere técnico certificado (30 días). Se comunica con ARCA en forma periódica. Costo: ~USD $850–1.000.</div>
+        <div class="complexity-wrap">
+          <span class="complexity-label">Complejidad:</span>
+          <div class="complexity c-med">
+            <div class="complexity-dot"></div><div class="complexity-dot"></div><div class="complexity-dot"></div>
+          </div>
+          <span class="tag tag-gold" style="margin-left:.3rem">MEDIA</span>
+        </div>
+      </div>
+      <div class="fiscal-card reveal" data-delay="4">
+        <div class="fiscal-opt-num">03</div>
+        <div class="fiscal-opt-title">API ARCA Directa</div>
+        <div class="fiscal-opt-desc">Web Services SOAP de ARCA. Requiere certificados digitales + CUIT configurado + punto de venta dado de alta. Simplificadores: TusFacturasAPP, AfipSDK, FacturaP.ar.</div>
+        <div class="complexity-wrap">
+          <span class="complexity-label">Complejidad:</span>
+          <div class="complexity c-high">
+            <div class="complexity-dot"></div><div class="complexity-dot"></div><div class="complexity-dot"></div>
+          </div>
+          <span class="tag tag-red" style="margin-left:.3rem">ALTA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">06 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 7 – MEDIOS DE PAGO
+     ==================================== -->
+<section class="slide" id="s7">
+  <div class="slide-content">
+    <p class="section-label reveal">Medios de pago</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Pagos en el Kiosko</h2>
+    <p style="color:var(--text-muted);margin-bottom:var(--content-gap)" class="reveal">El kiosko soporta todos los medios de pago digitales y físicos más usados en Argentina.</p>
+    <div class="payment-grid">
+      <!-- Mercado Pago -->
+      <div class="payment-card reveal" data-delay="2">
+        <div class="payment-icon">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="26" fill="#009EE3"/><path d="M10 26C10 17.163 17.163 10 26 10s16 7.163 16 16c0 3.2-.94 6.18-2.56 8.69L34 30h-6.5l3.5 8H20l-3-6.5C14.32 29.84 10 28.1 10 26Z" fill="white" opacity=".9"/><text x="26" y="32" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="9" fill="#009EE3">MP</text></svg>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.9rem,1.6vw,1.2rem)">Mercado Pago QR</div>
+        <div style="font-size:var(--small-size);color:var(--text-muted)">QR en pantalla. Tango Restó ya tiene integración nativa con MP.</div>
+        <span class="tag tag-green" style="font-size:.65rem">Integración nativa Tango</span>
+      </div>
+
+      <!-- MODO -->
+      <div class="payment-card reveal" data-delay="3">
+        <div class="payment-icon">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="26" fill="#1a1a2e"/><rect x="14" y="18" width="24" height="16" rx="4" fill="none" stroke="#00d4ff" stroke-width="2"/><text x="26" y="29" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="10" fill="#00d4ff">MODO</text></svg>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.9rem,1.6vw,1.2rem)">MODO QR</div>
+        <div style="font-size:var(--small-size);color:var(--text-muted)">Red de pagos digitales bancarios. QR interoperable con billeteras digitales argentinas.</div>
+        <span class="tag tag-blue" style="font-size:.65rem">Integración vía middleware</span>
+      </div>
+
+      <!-- Payway / Tarjeta -->
+      <div class="payment-card reveal" data-delay="4">
+        <div class="payment-icon">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none"><circle cx="26" cy="26" r="26" fill="#1e3a5f"/><rect x="10" y="18" width="32" height="16" rx="3" fill="none" stroke="#4fc3f7" stroke-width="2"/><rect x="10" y="24" width="32" height="4" fill="#4fc3f7" opacity=".4"/><text x="26" y="39" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="7.5" fill="#4fc3f7">PAYWAY</text></svg>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.9rem,1.6vw,1.2rem)">Tarjeta · Payway PINpad</div>
+        <div style="font-size:var(--small-size);color:var(--text-muted)">Posnet integrado (PINpad). Visa, Mastercard, Amex, débito. Payway es compatible con Tango PV.</div>
+        <span class="tag tag-gold" style="font-size:.65rem">PINpad físico en kiosko</span>
+      </div>
+    </div>
+    <div style="margin-top:clamp(.5rem,1.5vh,1rem);text-align:center" class="reveal" data-delay="5">
+      <span style="font-size:var(--small-size);color:var(--text-dim)">
+        💡 Todos los pagos se registran en Tango Restó y desencadenan la emisión del ticket fiscal automáticamente.
+      </span>
+    </div>
+  </div>
+  <div class="slide-num">07 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 8 – ESCÁNER DE CUPONES
+     ==================================== -->
+<section class="slide grid-bg" id="s8">
+  <div class="slide-content" style="align-items:center;text-align:center">
+    <p class="section-label reveal">Fidelización</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Escáner de Cupones</h2>
+    <p style="color:var(--text-muted);max-width:540px;margin:0 auto var(--content-gap)" class="reveal">Estilo McDonald's. El cliente presenta su cupón QR o código de barras al inicio del pedido.</p>
+
+    <div class="coupon-flow reveal" data-delay="3">
+      <div class="coupon-step">
+        <div class="coupon-step-icon">📲</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);color:var(--text)">Cliente muestra cupón</div>
+        <div class="coupon-step-label">QR digital o código de barras impreso</div>
+      </div>
+      <div class="coupon-arrow">→</div>
+      <div class="coupon-step">
+        <div class="coupon-step-icon">🔍</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);color:var(--text)">Lector integrado</div>
+        <div class="coupon-step-label">Escáner 2D en el kiosko (QR + barcode)</div>
+      </div>
+      <div class="coupon-arrow">→</div>
+      <div class="coupon-step">
+        <div class="coupon-step-icon">✅</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);color:var(--text)">Validación en tiempo real</div>
+        <div class="coupon-step-label">API de cupones verifica vigencia y unicidad</div>
+      </div>
+      <div class="coupon-arrow">→</div>
+      <div class="coupon-step">
+        <div class="coupon-step-icon">🏷️</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.4vw,1.05rem);color:var(--text)">Descuento aplicado</div>
+        <div class="coupon-step-label">El carrito se actualiza automáticamente</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.7rem;justify-content:center;margin-top:clamp(.6rem,1.5vh,1.2rem)" class="reveal" data-delay="5">
+      <span class="tag tag-gold">Código QR</span>
+      <span class="tag tag-gold">Código de Barras 1D/2D</span>
+      <span class="tag tag-green">Cupón de un solo uso</span>
+      <span class="tag tag-blue">Campañas de marketing digital</span>
+    </div>
+  </div>
+  <div class="slide-num">08 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 9 – HARDWARE ALIBABA
+     ==================================== -->
+<section class="slide" id="s9" style="background:#0a0a0f">
+  <div class="slide-content">
+    <div class="two-col">
+      <div>
+        <p class="section-label reveal">Hardware · Alibaba</p>
+        <h2 style="font-size:var(--h2-size)" class="reveal">Kiosko 21.5" Touch</h2>
+        <p style="color:var(--text-muted);margin-bottom:.8rem" class="reveal">Proveedor: Shenzhen Touchwo Intelligent Technology / YJCen Technology</p>
+
+        <div style="display:flex;flex-direction:column" class="reveal" data-delay="3">
+          <div class="spec-row"><span class="spec-key">Pantalla</span><span class="spec-val">21.5" Full HD 1920×1080</span></div>
+          <div class="spec-row"><span class="spec-key">Touch</span><span class="spec-val">Capacitivo 10 puntos</span></div>
+          <div class="spec-row"><span class="spec-key">Escáner</span><span class="spec-val">QR 2D + Código de barras 1D/2D</span></div>
+          <div class="spec-row"><span class="spec-key">Impresora</span><span class="spec-val">Térmica 80mm integrada</span></div>
+          <div class="spec-row"><span class="spec-key">Conectividad</span><span class="spec-val">WiFi · LAN · NFC opcional</span></div>
+          <div class="spec-row"><span class="spec-key">SO</span><span class="spec-val">Android 11 / Windows 10</span></div>
+          <div class="spec-row"><span class="spec-key">Certificaciones</span><span class="spec-val">CE · CCC · FCC · RoHS</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:1rem">
+        <!-- Kiosk SVG illustration -->
+        <svg viewBox="0 0 120 220" width="clamp(90px,10vw,140px)" style="filter:drop-shadow(0 0 20px rgba(255,184,0,.2))">
+          <!-- Stand -->
+          <rect x="50" y="190" width="20" height="20" rx="3" fill="#2a2a2a"/>
+          <rect x="40" y="205" width="40" height="10" rx="3" fill="#2a2a2a"/>
+          <!-- Pole -->
+          <rect x="56" y="160" width="8" height="35" fill="#222"/>
+          <!-- Body -->
+          <rect x="5" y="20" width="110" height="145" rx="12" fill="#1e1e1e" stroke="#333" stroke-width="1.5"/>
+          <!-- Screen bezel -->
+          <rect x="12" y="28" width="96" height="128" rx="8" fill="#111"/>
+          <!-- Screen -->
+          <rect x="15" y="31" width="90" height="120" rx="6" fill="#0d1117"/>
+          <!-- Screen content (burger menu mockup) -->
+          <rect x="20" y="36" width="80" height="18" rx="3" fill="#CC0000"/>
+          <text x="60" y="49" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="8" fill="white">MR. TASTY</text>
+          <!-- Menu items -->
+          <rect x="19" y="59" width="37" height="40" rx="4" fill="#252525"/>
+          <rect x="63" y="59" width="37" height="40" rx="4" fill="#252525"/>
+          <rect x="19" y="104" width="37" height="40" rx="4" fill="#252525"/>
+          <rect x="63" y="104" width="37" height="40" rx="4" fill="#252525"/>
+          <!-- Burger icons in cards -->
+          <circle cx="37.5" cy="75" r="8" fill="#FFB800" opacity=".8"/>
+          <circle cx="81.5" cy="75" r="8" fill="#FFB800" opacity=".8"/>
+          <circle cx="37.5" cy="120" r="8" fill="#FFB800" opacity=".8"/>
+          <circle cx="81.5" cy="120" r="8" fill="#FFB800" opacity=".8"/>
+          <!-- CTA button -->
+          <rect x="19" y="148" width="82" height="16" rx="8" fill="#CC0000"/>
+          <text x="60" y="159" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="7" fill="white">CONFIRMAR PEDIDO</text>
+          <!-- QR scanner indicator -->
+          <rect x="40" y="170" width="40" height="12" rx="3" fill="#111" stroke="#444" stroke-width="1"/>
+          <text x="60" y="179" text-anchor="middle" font-family="Arial" font-size="6" fill="#666">QR SCANNER</text>
+        </svg>
+
+        <div class="card gold-border" style="text-align:center;width:100%;max-width:220px">
+          <div style="font-size:var(--small-size);color:var(--text-muted);margin-bottom:.2rem">Precio por unidad (×10+)</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3.5vw,2.8rem);color:var(--gold)">USD 1.100</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">MOQ: 1 unidad · Personalización: 10+ unidades</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">09 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 10 – PRESUPUESTO HARDWARE
+     ==================================== -->
+<section class="slide grid-bg" id="s10">
+  <div class="slide-content">
+    <p class="section-label reveal">Presupuesto</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Hardware · USD 201.000</h2>
+    <div class="two-col" style="align-items:center;margin-top:var(--content-gap)">
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <div class="reveal" data-delay="2">
+          <div class="budget-bar-label">
+            <span>Kioscos 21.5" × 120 unidades</span>
+            <span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 132.000</span>
+          </div>
+          <div class="budget-bar-track"><div class="budget-bar-fill" style="width:0%;background:linear-gradient(90deg,var(--red),var(--gold))" data-target="65.7"></div></div>
+        </div>
+        <div class="reveal" data-delay="3">
+          <div class="budget-bar-label">
+            <span>Impresoras fiscales Hasar × 60</span>
+            <span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 51.000</span>
+          </div>
+          <div class="budget-bar-track"><div class="budget-bar-fill" style="width:0%;background:linear-gradient(90deg,#8b5cf6,#3b82f6)" data-target="25.4"></div></div>
+        </div>
+        <div class="reveal" data-delay="4">
+          <div class="budget-bar-label">
+            <span>Gabinetes + instalación eléctrica</span>
+            <span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">USD 18.000</span>
+          </div>
+          <div class="budget-bar-track"><div class="budget-bar-fill" style="width:0%;background:linear-gradient(90deg,#4ade80,#06b6d4)" data-target="9"></div></div>
+        </div>
+      </div>
+      <!-- Donut chart -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+        <canvas id="hwChart" width="180" height="180" style="max-height:min(28vh,180px);width:auto"></canvas>
+        <div style="display:flex;gap:.8rem;font-size:var(--small-size);flex-wrap:wrap;justify-content:center">
+          <span><span style="color:var(--red)">■</span> Kioscos 65.7%</span>
+          <span><span style="color:#8b5cf6">■</span> Fiscal 25.4%</span>
+          <span><span style="color:#4ade80">■</span> Instalación 9%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">10 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 11 – PRESUPUESTO SOFTWARE
+     ==================================== -->
+<section class="slide" id="s11">
+  <div class="slide-content">
+    <p class="section-label reveal">Presupuesto</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Software & Implementación · USD 99.000</h2>
+    <div class="two-col" style="margin-top:var(--content-gap)">
+      <div>
+        <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--h3-size);color:var(--gold);margin-bottom:.5rem" class="reveal" data-delay="2">Desarrollo de Software · <span style="color:var(--text)">USD 60.000</span></p>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <div class="card reveal" data-delay="3"><div style="display:flex;justify-content:space-between"><span>App kiosko (UI/UX touch + lógica)</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$25.000</span></div></div>
+          <div class="card reveal" data-delay="4"><div style="display:flex;justify-content:space-between"><span>Integración API Tango Restó</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$15.000</span></div></div>
+          <div class="card reveal" data-delay="5"><div style="display:flex;justify-content:space-between"><span>Panel de administración central</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$10.000</span></div></div>
+          <div class="card reveal" data-delay="6"><div style="display:flex;justify-content:space-between"><span>Módulo cupones + pasarela pagos</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$5.000</span></div></div>
+          <div class="card reveal" data-delay="7"><div style="display:flex;justify-content:space-between"><span>Testing, QA y homologación</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$5.000</span></div></div>
+        </div>
+      </div>
+      <div>
+        <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--h3-size);color:var(--gold);margin-bottom:.5rem" class="reveal" data-delay="2">Implementación · <span style="color:var(--text)">USD 39.000</span></p>
+        <div style="display:flex;flex-direction:column;gap:.3rem">
+          <div class="card reveal" data-delay="3"><div style="display:flex;justify-content:space-between"><span>Instalación técnica (×60 locales)</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$18.000</span></div></div>
+          <div class="card reveal" data-delay="4"><div style="display:flex;justify-content:space-between"><span>Configuración Tango Nexo (×60)</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$9.000</span></div></div>
+          <div class="card reveal" data-delay="5"><div style="display:flex;justify-content:space-between"><span>Capacitación del personal</span><span style="color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700">$12.000</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">11 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 12 – INVERSIÓN TOTAL
+     ==================================== -->
+<section class="slide" id="s12">
+  <div class="slide-content" style="align-items:center;text-align:center;position:relative;z-index:1">
+    <p class="section-label reveal">Inversión total</p>
+    <p style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(.9rem,1.6vw,1.2rem);color:var(--text-muted);margin-bottom:.3rem" class="reveal">Inversión única · 60 locales · 120 kioscos</p>
+    <div class="total-amount reveal" id="totalCounter">USD 300.000</div>
+    <div style="display:flex;gap:clamp(.5rem,1.5vw,1.2rem);justify-content:center;margin-top:var(--content-gap)" class="reveal" data-delay="3">
+      <div class="stat-box">
+        <div class="stat-num" style="font-size:clamp(1.5rem,3vw,2.5rem)">$201K</div>
+        <div class="stat-label">Hardware 67%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" style="font-size:clamp(1.5rem,3vw,2.5rem)">$60K</div>
+        <div class="stat-label">Software 20%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" style="font-size:clamp(1.5rem,3vw,2.5rem)">$39K</div>
+        <div class="stat-label">Impl. 13%</div>
+      </div>
+    </div>
+    <div style="margin-top:clamp(.5rem,1.5vh,1rem)" class="reveal" data-delay="4">
+      <canvas id="totalChart" width="220" height="220" style="max-height:min(22vh,160px);width:auto"></canvas>
+    </div>
+  </div>
+  <div class="slide-num">12 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 13 – COSTOS RECURRENTES
+     ==================================== -->
+<section class="slide grid-bg" id="s13">
+  <div class="slide-content">
+    <div class="two-col">
+      <div>
+        <p class="section-label reveal">Costos mensuales</p>
+        <div class="monthly-big reveal" data-delay="2">USD 16.800<span style="font-size:.35em;color:var(--text-muted)">/mes</span></div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:clamp(1rem,2vw,1.5rem);color:var(--text-muted);margin-top:.2rem" class="reveal" data-delay="3">USD 201.600 / año</div>
+        <div style="margin-top:var(--content-gap);display:flex;gap:.5rem;flex-wrap:wrap" class="reveal" data-delay="4">
+          <span class="tag tag-gold">60 locales</span>
+          <span class="tag tag-red">$280/local/mes</span>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <p style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--h3-size);margin-bottom:.3rem" class="reveal" data-delay="2">Desglose mensual</p>
+        <div class="card reveal" data-delay="3">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Licencia Tango Nexo Tiendas Full</div>
+              <div style="font-size:var(--small-size);color:var(--text-muted)">USD $150/local × 60</div>
+            </div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,2.5vw,1.8rem);color:var(--gold)">$9.000</div>
+          </div>
+        </div>
+        <div class="card reveal" data-delay="4">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Mantenimiento App Kiosko</div>
+              <div style="font-size:var(--small-size);color:var(--text-muted)">USD $80/local × 60</div>
+            </div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,2.5vw,1.8rem);color:var(--gold)">$4.800</div>
+          </div>
+        </div>
+        <div class="card reveal" data-delay="5">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Soporte Técnico Hardware</div>
+              <div style="font-size:var(--small-size);color:var(--text-muted)">USD $50/local × 60</div>
+            </div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.2rem,2.5vw,1.8rem);color:var(--gold)">$3.000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">13 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 14 – ROI
+     ==================================== -->
+<section class="slide" id="s14">
+  <div class="slide-content">
+    <p class="section-label reveal">Retorno de inversión</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">ROI a 24 Meses</h2>
+    <div style="display:flex;gap:clamp(.5rem,1.5vw,1.2rem);margin:.4rem 0" class="reveal" data-delay="2">
+      <div class="stat-box" style="flex:1">
+        <div class="stat-num" style="font-size:clamp(1.4rem,3vw,2.4rem)">Mes 18</div>
+        <div class="stat-label">Punto de equilibrio</div>
+      </div>
+      <div class="stat-box" style="flex:1">
+        <div class="stat-num" style="font-size:clamp(1.4rem,3vw,2.4rem)">+18%</div>
+        <div class="stat-label">Ticket promedio</div>
+      </div>
+      <div class="stat-box" style="flex:1">
+        <div class="stat-num" style="font-size:clamp(1.4rem,3vw,2.4rem)">-40%</div>
+        <div class="stat-label">Carga cajeros</div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="3">
+      <canvas id="roi-chart"></canvas>
+    </div>
+    <div style="display:flex;gap:1rem;font-size:var(--small-size);justify-content:center;margin-top:.3rem" class="reveal" data-delay="4">
+      <span><span style="color:var(--red)">●</span> Inversión acumulada</span>
+      <span><span style="color:#4ade80">●</span> Beneficios acumulados</span>
+      <span style="color:var(--gold)">★ Breakeven mes 18</span>
+    </div>
+  </div>
+  <div class="slide-num">14 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 15 – CRONOGRAMA
+     ==================================== -->
+<section class="slide grid-bg" id="s15">
+  <div class="slide-content">
+    <p class="section-label reveal">Cronograma</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Plan de Implementación · 6 Meses</h2>
+    <div style="margin-top:var(--content-gap);display:flex;flex-direction:column;gap:.4rem" id="phaseContainer">
+      <div class="phase-row reveal" data-delay="2">
+        <div class="phase-name">Mes 1: Diseño & Dev</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="35"></div></div>
+        <div class="phase-months">Mes 1</div>
+      </div>
+      <div class="phase-row reveal" data-delay="3">
+        <div class="phase-name">Mes 2–3: Desarrollo</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="65"></div></div>
+        <div class="phase-months">Mes 2–3</div>
+      </div>
+      <div class="phase-row reveal" data-delay="4">
+        <div class="phase-name">Mes 3: Hardware</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="50"></div></div>
+        <div class="phase-months">Mes 3</div>
+      </div>
+      <div class="phase-row reveal" data-delay="5">
+        <div class="phase-name">Mes 4: Piloto 5 locales</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="25"></div></div>
+        <div class="phase-months">Mes 4</div>
+      </div>
+      <div class="phase-row reveal" data-delay="6">
+        <div class="phase-name">Mes 5: Rollout 25 locales</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="75"></div></div>
+        <div class="phase-months">Mes 5</div>
+      </div>
+      <div class="phase-row reveal" data-delay="7">
+        <div class="phase-name">Mes 6: Rollout 60 locales</div>
+        <div class="budget-bar-track" style="height:clamp(18px,2.5vh,28px)"><div class="phase-bar" data-target="100"></div></div>
+        <div class="phase-months">Mes 6</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">15 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 16 – BENEFICIOS
+     ==================================== -->
+<section class="slide" id="s16">
+  <div class="slide-content">
+    <p class="section-label reveal" style="text-align:center">Por qué hacerlo</p>
+    <h2 style="font-size:var(--h2-size);text-align:center" class="reveal">Beneficios Clave</h2>
+    <div class="three-col" style="margin-top:var(--content-gap)">
+      <div class="benefit-card reveal" data-delay="2">
+        <div class="benefit-icon">📈</div>
+        <div class="benefit-metric">+18%</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Ticket promedio</div>
+        <div class="benefit-desc">Upselling digital automatizado. Los kioscos sugieren combos y upgrades en el momento justo.</div>
+      </div>
+      <div class="benefit-card reveal" data-delay="3">
+        <div class="benefit-icon">⚡</div>
+        <div class="benefit-metric">-60%</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Tiempo de espera</div>
+        <div class="benefit-desc">Pedidos simultáneos sin cola. Más rotación por hora en hora pico.</div>
+      </div>
+      <div class="benefit-card reveal" data-delay="4">
+        <div class="benefit-icon">💰</div>
+        <div class="benefit-metric">-40%</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Carga operativa</div>
+        <div class="benefit-desc">Reducción de cajeros dedicados. El personal se enfoca en preparación y atención.</div>
+      </div>
+      <div class="benefit-card reveal" data-delay="5">
+        <div class="benefit-icon">🧾</div>
+        <div class="benefit-metric">100%</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Trazabilidad fiscal</div>
+        <div class="benefit-desc">Cada pedido genera su ticket ARCA automáticamente via Tango Restó.</div>
+      </div>
+      <div class="benefit-card reveal" data-delay="6">
+        <div class="benefit-icon">🔒</div>
+        <div class="benefit-metric">99.9%</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Uptime</div>
+        <div class="benefit-desc">Hardware robusto con certificación industrial. Soporte remoto y on-site.</div>
+      </div>
+      <div class="benefit-card reveal" data-delay="7">
+        <div class="benefit-icon">📊</div>
+        <div class="benefit-metric">60</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700">Panel unificado</div>
+        <div class="benefit-desc">Dashboard central para gestionar menú, precios y cupones en todos los locales.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">16 / 17</div>
+</section>
+
+<!-- ====================================
+     SLIDE 17 – PRÓXIMOS PASOS
+     ==================================== -->
+<section class="slide" id="s17">
+  <div class="slide-content" style="position:relative;z-index:1">
+    <p class="section-label reveal" style="text-align:center">¿Qué sigue?</p>
+    <h2 style="font-size:var(--h2-size);text-align:center;margin-bottom:var(--content-gap)" class="reveal">Próximos Pasos</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(.6rem,1.5vw,1.2rem);max-width:800px;margin:0 auto">
+      <div class="step-card reveal" data-delay="2">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Reunión técnica con Axoft/Tango</div>
+          <div class="step-desc">Confirmar versión de Tango Restó, habilitar API Nexo Tiendas y configurar puntos de venta.</div>
+        </div>
+      </div>
+      <div class="step-card reveal" data-delay="3">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Piloto en 3 locales seleccionados</div>
+          <div class="step-desc">Instalación de 2 kioscos por local de prueba. Medición de KPIs: ticket, velocidad, errores.</div>
+        </div>
+      </div>
+      <div class="step-card reveal" data-delay="4">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Compra de hardware en Alibaba</div>
+          <div class="step-desc">RFQ a Shenzhen Touchwo con branding Mr. Tasty. Lead time estimado: 45–60 días.</div>
+        </div>
+      </div>
+      <div class="step-card reveal" data-delay="5">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Análisis de piloto + Rollout total</div>
+          <div class="step-desc">Con métricas validadas, despliegue a los 60 locales en 60 días (10 locales/semana).</div>
+        </div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <div style="text-align:center;margin-top:clamp(.8rem,2vh,1.5rem)" class="reveal" data-delay="6">
+      <div style="display:inline-flex;align-items:center;gap:.8rem;padding:.8rem 2rem;background:linear-gradient(135deg,var(--red),#990000);border-radius:100px;border:1px solid rgba(255,80,80,.3)">
+        <div class="mr-tasty-logo" style="background:none;padding:0;box-shadow:none;flex-direction:row;gap:.3rem">
+          <span style="font-family:'Fredoka One',cursive;font-size:1rem;color:#FF9900">MR.</span>
+          <span style="font-family:'Fredoka One',cursive;font-size:1.4rem;color:#FF9900">TASTY</span>
+        </div>
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,2vw,1.6rem);letter-spacing:.08em">Digital First · 2026</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">17 / 17</div>
+</section>
+
+<script>
+/* ===== SLIDE PRESENTATION CONTROLLER ===== */
+class Presentation {
+  constructor() {
+    this.slides = document.querySelectorAll('.slide');
+    this.total = this.slides.length;
+    this.current = 0;
+    this.animatedSlides = new Set();
+    this.chartsDrawn = new Set();
+    this.barsAnimated = new Set();
+    this.setupObserver();
+    this.setupNav();
+    this.setupKeys();
+    this.setupTouch();
+    this.setupProgress();
+    this.buildDots();
+  }
+
+  setupObserver() {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const slide = e.target;
+          slide.classList.add('visible');
+          const idx = [...this.slides].indexOf(slide);
+          this.current = idx;
+          this.updateProgress();
+          this.updateDots();
+          // Trigger deferred animations
+          if (!this.animatedSlides.has(idx)) {
+            this.animatedSlides.add(idx);
+            setTimeout(() => this.onSlideEnter(idx, slide), 200);
+          }
+        }
+      });
+    }, { threshold: 0.5 });
+    this.slides.forEach(s => obs.observe(s));
+  }
+
+  onSlideEnter(idx, slide) {
+    // Animate budget bars
+    slide.querySelectorAll('.budget-bar-fill, .phase-bar').forEach(bar => {
+      const target = bar.dataset.target;
+      if (target && !this.barsAnimated.has(bar)) {
+        this.barsAnimated.add(bar);
+        setTimeout(() => { bar.style.width = target + '%'; }, 300);
+      }
+    });
+
+    // Draw charts
+    if (idx === 9 && !this.chartsDrawn.has('hw')) { this.chartsDrawn.add('hw'); this.drawDonut('hwChart', [65.7, 25.4, 8.9], ['#CC0000','#8b5cf6','#4ade80']); }
+    if (idx === 11 && !this.chartsDrawn.has('total')) { this.chartsDrawn.add('total'); this.drawDonut('totalChart', [67, 20, 13], ['#CC0000','#FFB800','#4ade80']); }
+    if (idx === 13 && !this.chartsDrawn.has('roi')) { this.chartsDrawn.add('roi'); setTimeout(() => this.drawROI(), 400); }
+  }
+
+  drawDonut(id, data, colors) {
+    const c = document.getElementById(id); if (!c) return;
+    const ctx = c.getContext('2d');
+    const cx = c.width/2, cy = c.height/2, R = Math.min(cx,cy) - 10, r = R * 0.58;
+    ctx.clearRect(0,0,c.width,c.height);
+    let start = -Math.PI/2;
+    const total = data.reduce((a,b)=>a+b,0);
+    data.forEach((v,i)=>{
+      const angle = (v/total) * Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,R,start,start+angle);
+      ctx.closePath(); ctx.fillStyle = colors[i]; ctx.fill();
+      start += angle;
+    });
+    // hole
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg') || '#0d0d0d';
+    ctx.fill();
+  }
+
+  drawROI() {
+    const canvas = document.getElementById('roi-chart'); if (!canvas) return;
+    // Set canvas size
+    const parent = canvas.parentElement;
+    const w = Math.min(parent.clientWidth, 860);
+    const h = Math.min(window.innerHeight * 0.22, 240);
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    const pad = { top: 10, right: 20, bottom: 30, left: 60 };
+    const pw = w - pad.left - pad.right;
+    const ph = h - pad.top - pad.bottom;
+
+    // Data points: [investment (cumulative cost, positive), savings]
+    const months = 25;
+    const inv = [], sav = [];
+    for (let m = 0; m < months; m++) {
+      // Investment: $50K/month for first 6 months (hardware/dev), then $16.8K/month
+      const monthlyInv = m <= 6 ? 50000 : 16800;
+      inv.push((m===0 ? 0 : inv[m-1]) + monthlyInv);
+      // Savings: partial in months 1-6, full from month 7
+      const monthlySav = m < 3 ? 0 : m < 6 ? 15000 : m < 9 ? 25000 : 30000;
+      sav.push((m===0 ? 0 : sav[m-1]) + monthlySav);
+    }
+
+    const maxVal = Math.max(...inv, ...sav);
+    const toX = m => pad.left + (m / (months-1)) * pw;
+    const toY = v => pad.top + ph - (v / maxVal) * ph;
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,.06)'; ctx.lineWidth = 1;
+    for (let i=0;i<=4;i++) {
+      const y = pad.top + (ph/4)*i;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+pw, y); ctx.stroke();
+      ctx.fillStyle='rgba(255,255,255,.3)'; ctx.font=`${Math.max(9,w/90)}px Barlow`;
+      ctx.textAlign='right';
+      ctx.fillText('$'+(((maxVal/4)*(4-i))/1000).toFixed(0)+'K', pad.left-5, y+4);
+    }
+
+    // X axis labels
+    ctx.fillStyle='rgba(255,255,255,.3)'; ctx.textAlign='center';
+    [0,6,12,18,24].forEach(m => {
+      ctx.fillText('M'+m, toX(m), h-5);
+    });
+
+    // Investment line
+    ctx.beginPath(); ctx.strokeStyle='#CC0000'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    inv.forEach((v,m) => m===0 ? ctx.moveTo(toX(m),toY(v)) : ctx.lineTo(toX(m),toY(v)));
+    ctx.stroke();
+
+    // Savings line
+    ctx.beginPath(); ctx.strokeStyle='#4ade80'; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    sav.forEach((v,m) => m===0 ? ctx.moveTo(toX(m),toY(v)) : ctx.lineTo(toX(m),toY(v)));
+    ctx.stroke();
+
+    // Breakeven point ~month 18
+    // Find actual crossover
+    let bm = -1;
+    for (let m=1;m<months;m++) { if (sav[m] >= inv[m]) { bm = m; break; } }
+    if (bm >= 0) {
+      const bx = toX(bm), by = toY(sav[bm]);
+      ctx.beginPath(); ctx.arc(bx,by,6,0,Math.PI*2);
+      ctx.fillStyle='#FFB800'; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+    }
+
+    // Area fill for savings (subtle)
+    ctx.beginPath();
+    sav.forEach((v,m) => m===0 ? ctx.moveTo(toX(m),toY(v)) : ctx.lineTo(toX(m),toY(v)));
+    ctx.lineTo(toX(months-1), toY(0)); ctx.lineTo(toX(0), toY(0)); ctx.closePath();
+    ctx.fillStyle='rgba(74,222,128,.06)'; ctx.fill();
+  }
+
+  setupProgress() {
+    this.progressEl = document.getElementById('progressBar');
+  }
+  updateProgress() {
+    if (this.progressEl) this.progressEl.style.width = ((this.current/(this.total-1))*100)+'%';
+  }
+
+  buildDots() {
+    const nav = document.getElementById('navDots'); if (!nav) return;
+    for (let i=0;i<this.total;i++) {
+      const d = document.createElement('span');
+      d.className='nav-dot'+(i===0?' active':'');
+      d.addEventListener('click',()=>this.goTo(i));
+      nav.appendChild(d);
+    }
+  }
+  updateDots() {
+    document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===this.current));
+  }
+
+  goTo(idx) { this.slides[idx]?.scrollIntoView({behavior:'smooth'}); }
+
+  setupNav() {
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(() => { this.updateProgress(); ticking=false; }); ticking=true; }
+    });
+  }
+
+  setupKeys() {
+    document.addEventListener('keydown', e => {
+      if (e.key==='ArrowDown'||e.key==='ArrowRight'||e.key===' ') { e.preventDefault(); this.goTo(Math.min(this.current+1,this.total-1)); }
+      if (e.key==='ArrowUp'||e.key==='ArrowLeft') { e.preventDefault(); this.goTo(Math.max(this.current-1,0)); }
+      if (e.key==='Home') { e.preventDefault(); this.goTo(0); }
+      if (e.key==='End') { e.preventDefault(); this.goTo(this.total-1); }
+    });
+  }
+
+  setupTouch() {
+    let sy = 0;
+    document.addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, {passive:true});
+    document.addEventListener('touchend', e => {
+      const dy = sy - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 50) {
+        if (dy > 0) this.goTo(Math.min(this.current+1,this.total-1));
+        else this.goTo(Math.max(this.current-1,0));
+      }
+    });
+  }
+}
+
+/* ===== KIOSK PROTOTYPE LOGIC ===== */
+let currentProtoStep = 0;
+
+function protoNav(from, to, dir) {
+  const fromEl = document.getElementById('pStep'+from);
+  const toEl   = document.getElementById('pStep'+to);
+  if (!fromEl || !toEl) return;
+
+  // Animate out
+  fromEl.classList.remove('active');
+  fromEl.classList.add(dir === 'right' ? 'left' : 'right');
+
+  // Animate in
+  toEl.classList.remove('left','right');
+  toEl.classList.add('active');
+
+  currentProtoStep = to;
+  updateProtoDots();
+}
+
+function updateProtoDots() {
+  for (let i = 0; i <= 5; i++) {
+    const d = document.getElementById('pd'+i);
+    if (d) d.classList.toggle('active', i === currentProtoStep);
+  }
+}
+
+function selectPayment(el, method) {
+  document.querySelectorAll('.proto-pay-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+let scanTimeout = null;
+function simulateScan() {
+  const input  = document.getElementById('couponInput');
+  const status = document.getElementById('couponStatus');
+  const btn    = document.getElementById('couponBtn');
+  if (!input || !status || !btn) return;
+  if (input.classList.contains('scanned')) return;
+
+  status.style.color = 'var(--gold)';
+  status.textContent = 'Leyendo cupón...';
+  clearTimeout(scanTimeout);
+  scanTimeout = setTimeout(() => {
+    input.classList.add('scanned');
+    input.textContent = '✓ CUPON-TASTY-20OFF';
+    status.style.color = '#4ade80';
+    status.textContent = '¡Descuento del 20% aplicado!';
+    btn.style.display = 'block';
+  }, 1200);
+}
+
+function protoReset() {
+  // Reset all steps
+  for (let i = 0; i <= 5; i++) {
+    const s = document.getElementById('pStep'+i);
+    if (s) { s.classList.remove('active','left','right'); s.classList.add(i===0?'active':'right'); }
+  }
+  // Reset coupon
+  const input  = document.getElementById('couponInput');
+  const status = document.getElementById('couponStatus');
+  const btn    = document.getElementById('couponBtn');
+  if (input) { input.classList.remove('scanned'); input.textContent = 'Apuntá el cupón QR\nal escáner del kiosko'; }
+  if (status) { status.style.color='var(--text-dim)'; status.textContent = 'Esperando lectura...'; }
+  if (btn)   btn.style.display = 'none';
+  // Reset payment selection
+  document.querySelectorAll('.proto-pay-opt').forEach(o => o.classList.remove('selected'));
+  currentProtoStep = 0;
+  updateProtoDots();
+}
+
+/* Animated number counter */
+function animateCounter(el, target, duration=1500, prefix='', suffix='') {
+  const start = performance.now();
+  const update = (now) => {
+    const p = Math.min((now-start)/duration, 1);
+    const ease = 1-Math.pow(1-p, 4);
+    el.textContent = prefix + Math.round(target*ease).toLocaleString('es-AR') + suffix;
+    if (p < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+/* Init */
+window.addEventListener('DOMContentLoaded', () => {
+  new Presentation();
+
+  // Counter on slide 3
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const el = document.getElementById('counterKioscos');
+        if (el && !el.dataset.animated) {
+          el.dataset.animated = '1';
+          animateCounter(el, 120, 1200);
+        }
+      }
+    });
+  }, {threshold:0.5});
+  const s3 = document.getElementById('s3');
+  if (s3) counterObs.observe(s3);
+});
+</script>
+</body>
+</html>
