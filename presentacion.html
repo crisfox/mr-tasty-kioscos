@@ -1585,49 +1585,97 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
     <p class="section-label reveal" style="color:var(--lc)">App Web + QR</p>
     <h2 style="font-size:var(--h2-size)" class="reveal">¿Cómo funciona?</h2>
     <div class="two-col" style="margin-top:var(--content-gap);align-items:start;gap:clamp(.8rem,2vw,2rem)">
-      <div style="display:flex;flex-direction:column;gap:clamp(.5rem,1.2vh,.9rem)">
+      <div style="display:flex;flex-direction:column;gap:clamp(.4rem,1vh,.7rem)">
+
         <div class="flow-step reveal" data-delay="2">
           <div class="flow-num">1</div>
           <div class="flow-content">
-            <div class="flow-title">📱 Escaneo QR en el local</div>
-            <div class="flow-desc">Cada mesa / mostrador tiene un QR impreso. Al escanearlo, abre la web de Mr. Tasty con el local ya configurado automáticamente.</div>
+            <div class="flow-title">📱 Escanea QR en mesa o mostrador</div>
+            <div class="flow-desc">Abre la PWA con el local ya configurado. Sin instalar nada.</div>
           </div>
         </div>
+
         <div class="flow-step reveal" data-delay="3">
           <div class="flow-num">2</div>
           <div class="flow-content">
-            <div class="flow-title">🍔 Elige y arma su pedido</div>
-            <div class="flow-desc">PWA (Progressive Web App) — funciona en cualquier celular sin instalar nada. Menú actualizado en tiempo real.</div>
+            <div class="flow-title">🍔 Arma su pedido y paga</div>
+            <div class="flow-desc">Menú touch, carrito, checkout con Mercado Pago o MODO. Ingresa su WhatsApp (opcional).</div>
           </div>
         </div>
-        <div class="flow-step reveal" data-delay="4">
-          <div class="flow-num">3</div>
+
+        <!-- KEY STEP — Tango integration -->
+        <div class="flow-step reveal" data-delay="4" style="position:relative">
+          <div class="flow-num" style="background:var(--lc);box-shadow:0 0 0 3px rgba(0,204,136,.25)">3</div>
           <div class="flow-content">
-            <div class="flow-title">💳 Pago con MP o MODO</div>
-            <div class="flow-desc">Checkout via Mercado Pago o MODO. El pago genera automáticamente la comanda en Tango Restó via API.</div>
+            <div class="flow-title" style="color:var(--lc)">⚡ Pago confirmado → Comanda en Tango</div>
+            <div style="font-size:var(--small-size);color:var(--text-muted);margin-top:.1rem;line-height:1.4">
+              MP/MODO envía webhook de pago aprobado → el backend llama a la API
+              <span style="font-family:'Barlow Condensed',sans-serif;color:rgba(0,204,136,.8);font-size:.85em">RestoAperturaComandasMostradorDelivery</span>
+              → Tango crea la comanda <strong style="color:var(--text)">automáticamente</strong> sin intervención del staff.
+            </div>
+            <!-- Inline API event badges -->
+            <div style="display:flex;gap:.3rem;margin-top:.3rem;flex-wrap:wrap">
+              <span style="background:#0e1e18;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;padding:.1rem .4rem;border-radius:4px">OrderObserved</span>
+              <span style="background:#0e1e18;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;padding:.1rem .4rem;border-radius:4px">OrderProcessed</span>
+              <span style="background:#0e1e18;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.7rem;padding:.1rem .4rem;border-radius:4px">OrderBilled</span>
+            </div>
           </div>
         </div>
+
         <div class="flow-step reveal" data-delay="5">
           <div class="flow-num">4</div>
           <div class="flow-content">
-            <div class="flow-title">⏳ Espera con número de orden</div>
-            <div class="flow-desc">El cliente recibe un número de pedido. El staff ve los pedidos en un panel simple y los marca como "listos".</div>
+            <div class="flow-title">🍳 La cocina recibe la comanda en Tango</div>
+            <div class="flow-desc">El display de cocina o Mostrador de Tango muestra el pedido. El ticket fiscal se emite vía ARCA de forma automática.</div>
           </div>
         </div>
+
         <div class="flow-step reveal" data-delay="6">
           <div class="flow-num">5</div>
           <div class="flow-content">
-            <div class="flow-title">📲 WhatsApp: "Tu pedido está listo"</div>
-            <div class="flow-desc">Cuando el staff aprieta "Listo", el sistema envía automáticamente un WhatsApp al cliente: "🍔 Tu pedido #247 está listo para retirar. ¡Buen provecho!"</div>
+            <div class="flow-title">📲 "Tu pedido #247 está listo" → WhatsApp</div>
+            <div class="flow-desc">El staff marca la comanda como "Lista" en Tango o en el panel admin → dispara el WhatsApp automático al cliente.</div>
           </div>
         </div>
+
       </div>
-      <div>
-        <!-- QR visual mockup -->
-        <div class="lc-card reveal" data-delay="3" style="text-align:center;padding:clamp(.8rem,2vh,1.5rem)">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.9rem,1.8vw,1.3rem);color:var(--lc);margin-bottom:.5rem">QR en mesa / mostrador</div>
-          <div style="background:white;border-radius:10px;padding:clamp(.5rem,1vh,.8rem);display:inline-block;margin-bottom:.5rem">
-            <svg viewBox="0 0 25 25" width="clamp(80px,12vw,130px)" height="clamp(80px,12vw,130px)" shape-rendering="crispEdges">
+      <div style="display:flex;flex-direction:column;gap:clamp(.5rem,1.2vh,.9rem)">
+
+        <!-- Tango highlight box -->
+        <div class="reveal" data-delay="4" style="background:#0a1a10;border:2px solid rgba(0,204,136,.4);border-radius:14px;padding:clamp(.7rem,1.5vh,1.2rem);position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--lc),transparent)"></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.9rem,1.6vw,1.2rem);color:var(--lc);margin-bottom:.4rem">🔗 Integración Tango Restó</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted);line-height:1.5;margin-bottom:.4rem">
+            Se usa la <strong style="color:var(--text)">misma API oficial</strong> que los kioscos físicos. Tango ya está homologado por ARCA, con lo que el ticket fiscal es automático.
+          </div>
+          <div style="background:#060e09;border-radius:8px;padding:.4rem .6rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);color:rgba(0,204,136,.7);margin-bottom:.3rem;word-break:break-all">
+            github.com/TangoSoftware/<wbr>RestoAperturaComandasMostradorDelivery
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem">
+            <div style="background:#0e1e14;border-radius:6px;padding:.3rem .5rem;font-size:var(--small-size)">✓ Auto-envío a cocina</div>
+            <div style="background:#0e1e14;border-radius:6px;padding:.3rem .5rem;font-size:var(--small-size)">✓ Ticket ARCA automático</div>
+            <div style="background:#0e1e14;border-radius:6px;padding:.3rem .5rem;font-size:var(--small-size)">✓ Sin cambios en Tango</div>
+            <div style="background:#0e1e14;border-radius:6px;padding:.3rem .5rem;font-size:var(--small-size)">✓ Versión mínima T25</div>
+          </div>
+        </div>
+
+        <!-- WhatsApp mockup -->
+        <div class="lc-card reveal" data-delay="6">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem">
+            <span style="font-size:clamp(1rem,1.8vw,1.3rem)">💬</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc)">WhatsApp automático al cliente</span>
+          </div>
+          <div style="background:#0f1f17;border-radius:8px;padding:.45rem .6rem;font-size:var(--small-size);line-height:1.6">
+            🍔 Hola! Tu pedido <strong>#247</strong> en <strong>Mr. Tasty Palermo</strong> está listo para retirar en caja.
+            <span style="color:#4ade80">¡Buen provecho! 🎉</span>
+          </div>
+          <div style="font-size:var(--small-size);color:var(--text-muted);margin-top:.25rem">WhatsApp Business API · Twilio / Meta</div>
+        </div>
+
+        <!-- QR hint -->
+        <div class="reveal" data-delay="3" style="text-align:center">
+          <div style="background:white;border-radius:8px;padding:.4rem;display:inline-block">
+            <svg viewBox="0 0 25 25" width="clamp(56px,8vw,80px)" height="clamp(56px,8vw,80px)" shape-rendering="crispEdges">
               <rect width="25" height="25" fill="white"/>
               <rect x="0" y="0" width="7" height="7" fill="#000"/><rect x="1" y="1" width="5" height="5" fill="#fff"/><rect x="2" y="2" width="3" height="3" fill="#00CC88"/>
               <rect x="18" y="0" width="7" height="7" fill="#000"/><rect x="19" y="1" width="5" height="5" fill="#fff"/><rect x="20" y="2" width="3" height="3" fill="#00CC88"/>
@@ -1635,21 +1683,9 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
               <rect x="8" y="0" fill="#000" width="1" height="1"/><rect x="10" y="0" fill="#000" width="2" height="1"/><rect x="14" y="1" fill="#000" width="1" height="1"/><rect x="9" y="2" fill="#00CC88" width="2" height="1"/><rect x="13" y="3" fill="#000" width="1" height="2"/><rect x="10" y="5" fill="#000" width="2" height="1"/><rect x="8" y="8" fill="#000" width="3" height="1"/><rect x="12" y="8" fill="#000" width="2" height="1"/><rect x="17" y="9" fill="#000" width="2" height="1"/><rect x="9" y="10" fill="#000" width="1" height="2"/><rect x="13" y="11" fill="#000" width="3" height="1"/><rect x="18" y="12" fill="#000" width="2" height="1"/><rect x="8" y="14" fill="#000" width="2" height="1"/><rect x="12" y="15" fill="#000" width="2" height="1"/><rect x="17" y="14" fill="#000" width="1" height="2"/><rect x="9" y="16" fill="#000" width="2" height="1"/><rect x="8" y="18" fill="#000" width="2" height="1"/><rect x="11" y="19" fill="#000" width="1" height="1"/><rect x="14" y="18" fill="#000" width="2" height="1"/><rect x="18" y="19" fill="#000" width="2" height="1"/><rect x="9" y="21" fill="#000" width="2" height="1"/><rect x="13" y="20" fill="#000" width="1" height="2"/><rect x="17" y="21" fill="#000" width="1" height="1"/><rect x="22" y="20" fill="#000" width="2" height="1"/>
             </svg>
           </div>
-          <div style="font-size:var(--small-size);color:var(--text-muted);font-family:'Barlow Condensed',sans-serif">pedido.mrtasty.com.ar/local=<span style="color:var(--lc)">12</span></div>
-          <div style="margin-top:.5rem;padding:.4rem;background:rgba(0,204,136,.1);border-radius:6px;font-size:var(--small-size);color:var(--lc)">✓ Sin app. Sin cuenta. Funciona en cualquier celular.</div>
+          <div style="font-size:var(--small-size);color:var(--text-dim);margin-top:.2rem;font-family:'Barlow Condensed',sans-serif">pedido.mrtasty.com.ar/?local=<span style="color:var(--lc)">12</span></div>
         </div>
-        <!-- WhatsApp mockup -->
-        <div class="lc-card reveal" data-delay="5" style="margin-top:clamp(.5rem,1.2vh,.9rem)">
-          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem">
-            <span style="font-size:1.2rem">💬</span>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc)">Notificación WhatsApp</span>
-          </div>
-          <div style="background:#0f1f17;border-radius:8px;padding:.5rem;font-size:var(--small-size);line-height:1.6;color:var(--text)">
-            🍔 Hola! Tu pedido <strong>#247</strong> en <strong>Mr. Tasty Palermo</strong> está listo para retirar en caja.<br>
-            <span style="color:#4ade80">¡Buen provecho! 🎉</span>
-          </div>
-          <div style="font-size:var(--small-size);color:var(--text-muted);margin-top:.3rem">via WhatsApp Business API · Twilio</div>
-        </div>
+
       </div>
     </div>
   </div>
@@ -1660,53 +1696,105 @@ h1,h2,h3,.bebas{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;line-he
      SLIDE 20 – LOW COST: ARQUITECTURA
      ==================================== -->
 <section class="slide" id="s20">
-  <div class="slide-content">
-    <p class="section-label reveal" style="color:var(--lc)">App Web + QR</p>
-    <h2 style="font-size:var(--h2-size)" class="reveal">Arquitectura Low Cost</h2>
-    <div class="two-col" style="margin-top:var(--content-gap);align-items:start">
+  <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 60% 45%,rgba(0,204,136,.07) 0%,transparent 55%);pointer-events:none;z-index:0"></div>
+  <div class="slide-content" style="position:relative;z-index:1">
+    <p class="section-label reveal" style="color:var(--lc)">Integración técnica</p>
+    <h2 style="font-size:var(--h2-size)" class="reveal">Tango Restó como núcleo</h2>
+
+    <div class="two-col" style="margin-top:var(--content-gap);align-items:start;gap:clamp(.8rem,2vw,2rem)">
+
+      <!-- LEFT: Full webhook → comanda flow -->
       <div>
-        <!-- Architecture boxes -->
-        <div style="display:flex;flex-direction:column;gap:clamp(.4rem,1vh,.7rem)">
-          <div class="lc-card reveal" data-delay="2">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);margin-bottom:.2rem">📱 Frontend — PWA React</div>
-            <div style="font-size:var(--small-size);color:var(--text-muted)">Progressive Web App. Se abre desde el QR, sin instalación. Menú dinámico, carrito, checkout. Funciona offline para ver el menú.</div>
-          </div>
-          <div class="lc-card reveal" data-delay="3">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);margin-bottom:.2rem">⚙️ Backend — Node.js + API REST</div>
-            <div style="font-size:var(--small-size);color:var(--text-muted)">Gestión de pedidos, locales, menú. Se conecta con Tango Restó API, MP Checkout Pro, MODO y WhatsApp Business.</div>
-          </div>
-          <div class="lc-card reveal" data-delay="4">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);margin-bottom:.2rem">🍽️ Integración Tango Restó</div>
-            <div style="font-size:var(--small-size);color:var(--text-muted)">Misma API que el kiosko físico: RestoAperturaComandasMostradorDelivery. Auto-envío a cocina + ticket fiscal ARCA.</div>
-          </div>
-          <div class="lc-card reveal" data-delay="5">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);margin-bottom:.2rem">📲 WhatsApp Business API (Twilio/Meta)</div>
-            <div style="font-size:var(--small-size);color:var(--text-muted)">El staff marca el pedido como "listo" en el panel admin → dispara mensaje automático al número del cliente.</div>
-          </div>
-          <div class="lc-card reveal" data-delay="6">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);margin-bottom:.2rem">🖥️ Panel Admin — Staff</div>
-            <div style="font-size:var(--small-size);color:var(--text-muted)">Interfaz simple web para staff. Muestra pedidos en cola, botón "Listo" por pedido. Sin hardware adicional — funciona en tablet o celular del local.</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.5rem" class="reveal" data-delay="2">Flujo automático — sin intervención del staff</div>
+
+        <div style="position:relative" class="reveal" data-delay="2">
+          <!-- Vertical connector line -->
+          <div style="position:absolute;left:clamp(.7rem,1.2vw,.9rem);top:.8rem;bottom:.8rem;width:2px;background:linear-gradient(to bottom,rgba(0,204,136,.6),rgba(0,204,136,.1));z-index:0"></div>
+
+          <div style="display:flex;flex-direction:column;gap:clamp(.3rem,.6vh,.5rem);position:relative;z-index:1">
+
+            <div style="display:flex;align-items:flex-start;gap:clamp(.6rem,1.2vw,.9rem)">
+              <div style="width:clamp(1.4rem,2.4vw,1.8rem);height:clamp(1.4rem,2.4vw,1.8rem);border-radius:50%;background:#111;border:2px solid rgba(0,204,136,.5);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.15rem">📱</div>
+              <div class="lc-card" style="flex:1;padding:.45rem .6rem">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--small-size)">Cliente paga en PWA (MP / MODO)</div>
+                <div style="font-size:var(--small-size);color:var(--text-muted)">Checkout finaliza → pago aprobado</div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:flex-start;gap:clamp(.6rem,1.2vw,.9rem)">
+              <div style="width:clamp(1.4rem,2.4vw,1.8rem);height:clamp(1.4rem,2.4vw,1.8rem);border-radius:50%;background:#111;border:2px solid rgba(0,204,136,.5);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.15rem">🔔</div>
+              <div class="lc-card" style="flex:1;padding:.45rem .6rem">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--small-size)">Webhook de MP/MODO → Backend</div>
+                <div style="font-size:var(--small-size);color:var(--text-muted)">El backend recibe confirmación del pago en tiempo real</div>
+              </div>
+            </div>
+
+            <!-- KEY NODE -->
+            <div style="display:flex;align-items:flex-start;gap:clamp(.6rem,1.2vw,.9rem)">
+              <div style="width:clamp(1.4rem,2.4vw,1.8rem);height:clamp(1.4rem,2.4vw,1.8rem);border-radius:50%;background:var(--lc);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.15rem;box-shadow:0 0 0 3px rgba(0,204,136,.25)">⚡</div>
+              <div style="flex:1;background:#0a1a10;border:2px solid rgba(0,204,136,.45);border-radius:10px;padding:.45rem .6rem">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--small-size);color:var(--lc)">Backend → POST RestoAperturaComandasMostradorDelivery</div>
+                <div style="font-size:var(--small-size);color:var(--text-muted)">Llamada a la API de Tango Nexo. Versión mínima requerida: T25 25.01.000.2377+</div>
+                <div style="display:flex;gap:.25rem;margin-top:.25rem;flex-wrap:wrap">
+                  <span style="background:#060e09;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;padding:.1rem .35rem;border-radius:3px">OrderObserved</span>
+                  <span style="background:#060e09;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;padding:.1rem .35rem;border-radius:3px">OrderProcessed</span>
+                  <span style="background:#060e09;border:1px solid rgba(0,204,136,.3);color:#00CC88;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;padding:.1rem .35rem;border-radius:3px">OrderBilled</span>
+                  <span style="background:#1a0808;border:1px solid rgba(204,0,0,.3);color:#ff8080;font-family:'Barlow Condensed',sans-serif;font-size:.65rem;padding:.1rem .35rem;border-radius:3px">OrderRejected</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:flex-start;gap:clamp(.6rem,1.2vw,.9rem)">
+              <div style="width:clamp(1.4rem,2.4vw,1.8rem);height:clamp(1.4rem,2.4vw,1.8rem);border-radius:50%;background:#111;border:2px solid rgba(0,204,136,.5);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.15rem">🍳</div>
+              <div class="lc-card" style="flex:1;padding:.45rem .6rem">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--small-size)">Comanda aparece en Tango Restó</div>
+                <div style="font-size:var(--small-size);color:var(--text-muted)">Display de cocina / Mostrador actualizado. Ticket fiscal ARCA emitido automáticamente.</div>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:flex-start;gap:clamp(.6rem,1.2vw,.9rem)">
+              <div style="width:clamp(1.4rem,2.4vw,1.8rem);height:clamp(1.4rem,2.4vw,1.8rem);border-radius:50%;background:#111;border:2px solid rgba(0,204,136,.5);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;margin-top:.15rem">✅</div>
+              <div class="lc-card" style="flex:1;padding:.45rem .6rem">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--small-size)">Staff marca "Listo" → WhatsApp al cliente</div>
+                <div style="font-size:var(--small-size);color:var(--text-muted)">Desde Tango o panel admin web. Dispara mensaje automático vía WhatsApp Business API.</div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
-      <div>
-        <!-- Flow diagram -->
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);color:var(--text-muted);margin-bottom:.4rem" class="reveal" data-delay="2">Flujo de datos</div>
-        <div style="display:flex;flex-direction:column;gap:0" class="reveal" data-delay="3">
-          <div style="background:#0e1e18;border:1px solid rgba(0,204,136,.3);border-radius:10px 10px 0 0;padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);font-weight:600">📱 Cliente escanea QR → PWA</div>
-          <div style="width:2px;height:clamp(.6rem,1.2vh,.9rem);background:rgba(0,204,136,.3);margin-left:1.5rem"></div>
-          <div style="background:#0a1a14;border:1px solid rgba(0,204,136,.2);padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size)">💳 MP Checkout Pro / MODO link de pago</div>
-          <div style="width:2px;height:clamp(.6rem,1.2vh,.9rem);background:rgba(0,204,136,.3);margin-left:1.5rem"></div>
-          <div style="background:#0e1e18;border:1px solid rgba(0,204,136,.2);padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size)">⚙️ Backend → POST Tango Nexo API</div>
-          <div style="width:2px;height:clamp(.6rem,1.2vh,.9rem);background:rgba(0,204,136,.3);margin-left:1.5rem"></div>
-          <div style="background:#0a1a14;border:1px solid rgba(0,204,136,.2);padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size)">🍳 Tango → Comanda cocina + Ticket ARCA</div>
-          <div style="width:2px;height:clamp(.6rem,1.2vh,.9rem);background:rgba(0,204,136,.3);margin-left:1.5rem"></div>
-          <div style="background:#0e1e18;border:1px solid rgba(0,204,136,.2);padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size)">🖥️ Staff panel → "Pedido listo" → trigger WA</div>
-          <div style="width:2px;height:clamp(.6rem,1.2vh,.9rem);background:rgba(0,204,136,.3);margin-left:1.5rem"></div>
-          <div style="background:#0e1e18;border:1px solid rgba(0,204,136,.3);border-radius:0 0 10px 10px;padding:.5rem .8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);font-weight:600;color:var(--lc)">📲 WhatsApp: "Tu pedido #247 está listo 🍔"</div>
+
+      <!-- RIGHT: Stack components -->
+      <div style="display:flex;flex-direction:column;gap:clamp(.4rem,.9vh,.7rem)">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:var(--small-size);font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.1rem" class="reveal" data-delay="2">Stack técnico</div>
+
+        <div class="lc-card reveal" data-delay="3" style="padding:.5rem .7rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">📱 PWA React</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">Menú, carrito, checkout. Sin instalación, funciona en cualquier celular.</div>
         </div>
-        <div class="reveal" data-delay="5" style="margin-top:.6rem">
-          <span class="lc-tag">Hosting: AWS / DigitalOcean ~USD $400/mes</span>
+        <div class="lc-card reveal" data-delay="4" style="padding:.5rem .7rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">⚙️ Backend Node.js</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">Orquestador central: pagos, Tango API, WhatsApp, menú por local.</div>
+        </div>
+        <div class="lc-card reveal" data-delay="5" style="padding:.5rem .7rem;border-color:rgba(0,204,136,.35)">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">🍽️ Tango Nexo API · Misma que kioscos</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">No requiere cambios en Tango. Solo habilitar Nexo Tiendas Full en cada local.</div>
+        </div>
+        <div class="lc-card reveal" data-delay="6" style="padding:.5rem .7rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">💳 MP Checkout Pro + MODO</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">Link de pago o checkout embebido. Webhook confirma pago antes de crear comanda.</div>
+        </div>
+        <div class="lc-card reveal" data-delay="7" style="padding:.5rem .7rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">💬 WhatsApp Business API</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">Twilio o Meta directo. Template "pedido listo" pre-aprobado por Meta.</div>
+        </div>
+        <div class="lc-card reveal" data-delay="8" style="padding:.5rem .7rem">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--lc);font-size:var(--small-size)">🖥️ Panel Admin (tablet/celular del local)</div>
+          <div style="font-size:var(--small-size);color:var(--text-muted)">Cola de pedidos + botón "Listo". Sin hardware adicional.</div>
+        </div>
+
+        <div class="reveal" data-delay="4" style="margin-top:.1rem">
+          <span class="lc-tag">☁️ Hosting AWS / DO ~USD $400/mes</span>
         </div>
       </div>
     </div>
