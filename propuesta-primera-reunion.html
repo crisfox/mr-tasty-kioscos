@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Tasty · Primera Reunión</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --red:#CC0000;--red-dark:#990000;
+  --gold:#FFB800;--gold-dim:rgba(255,184,0,.12);
+  --bg:#0d0d0d;--bg2:#111;--bg3:#1a1a1a;
+  --border:rgba(255,255,255,.08);
+  --text:#fff;--muted:#888;--dim:#444;
+  --lc:#00CC88;
+  --h2:clamp(2.2rem,5.5vw,4.5rem);
+  --body:clamp(1rem,1.8vw,1.3rem);
+  --small:clamp(.88rem,1.4vw,1.1rem);
+  --pad:clamp(1.5rem,4vw,4.5rem);
+  --gap:clamp(.8rem,2vh,2rem);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+html,body{height:100%;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;flex-direction:column;position:relative}
+#progressBar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),var(--gold));z-index:1000;width:0%;transition:width .3s}
+#navDots{position:fixed;right:1rem;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.4rem;z-index:999}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s}
+.nav-dot.active{background:var(--gold);transform:scale(1.5)}
+.slide-num{position:absolute;bottom:1rem;right:1.8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small);color:var(--dim);letter-spacing:.08em}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.slide.visible .reveal{opacity:1;transform:translateY(0)}
+.reveal[data-delay="2"]{transition-delay:.1s}
+.reveal[data-delay="3"]{transition-delay:.2s}
+.reveal[data-delay="4"]{transition-delay:.32s}
+.reveal[data-delay="5"]{transition-delay:.44s}
+.reveal[data-delay="6"]{transition-delay:.56s}
+.label{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.2vw,1rem);letter-spacing:.25em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:.3rem}
+.tag{display:inline-block;padding:.2em .65em;border-radius:100px;font-family:'Barlow Condensed',sans-serif;font-size:var(--small);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tag-red{background:rgba(204,0,0,.12);color:#ff7777;border:1px solid rgba(204,0,0,.3)}
+.tag-gold{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.25)}
+.tag-lc{background:rgba(0,204,136,.1);color:var(--lc);border:1px solid rgba(0,204,136,.25)}
+
+/* SLIDE 1 */
+#s1{background:#080808;align-items:center;justify-content:center;text-align:center}
+#s1::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 45%,rgba(204,0,0,.08) 0%,transparent 70%)}
+
+/* SLIDE 2 — EL PROBLEMA */
+#s2{background:linear-gradient(160deg,#0a0a0a 0%,#0d0d0d 60%,#0a0f09 100%)}
+.opp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.8rem,2vw,1.6rem);flex:1;max-height:min(64vh,500px)}
+.opp-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:clamp(1rem,2.8vh,2rem);display:flex;flex-direction:column;gap:.45rem;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.opp-card:hover{transform:translateY(-2px);border-color:rgba(255,184,0,.2)}
+.opp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.opp-card:nth-child(1)::before{background:linear-gradient(90deg,#FFB800,transparent)}
+.opp-card:nth-child(2)::before{background:linear-gradient(90deg,#4ade80,transparent)}
+.opp-card:nth-child(3)::before{background:linear-gradient(90deg,#60a5fa,transparent)}
+.opp-card:nth-child(4)::before{background:linear-gradient(90deg,#c084fc,transparent)}
+.opp-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,6vw,5rem);line-height:1}
+.opp-card:nth-child(1) .opp-num{color:#FFB800}
+.opp-card:nth-child(2) .opp-num{color:#4ade80}
+.opp-card:nth-child(3) .opp-num{color:#60a5fa}
+.opp-card:nth-child(4) .opp-num{color:#c084fc}
+.opp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vw,1.4rem);line-height:1.2}
+.opp-desc{font-size:var(--small);color:var(--muted);line-height:1.55;flex:1}
+.opp-source{font-size:clamp(.6rem,.9vw,.75rem);color:var(--dim);letter-spacing:.03em;margin-top:auto;padding-top:.3rem;border-top:1px solid rgba(255,255,255,.05)}
+
+/* SLIDE 3 — LÍDERES */
+#s3{background:#09090f}
+.stat-row{display:flex;gap:0;flex:1;max-height:min(52vh,340px)}
+.bigstat{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:clamp(.8rem,2.5vw,2rem);position:relative;text-align:center}
+.bigstat::after{content:'';position:absolute;right:0;top:15%;bottom:15%;width:1px;background:var(--border)}
+.bigstat:last-child::after{display:none}
+.bigstat-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,8.5rem);line-height:1;color:var(--gold)}
+.bigstat-label{font-size:var(--body);color:var(--muted);max-width:210px}
+.bigstat-sub{font-size:var(--small);color:var(--dim);margin-top:.2rem}
+
+/* SLIDE 4 — OPORTUNIDAD */
+#s4{background:#080808}
+.contrast-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(.8rem,2vw,1.5rem);align-items:center;flex:1;max-height:min(60vh,420px)}
+.contrast-col{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:clamp(1rem,2.8vh,2rem);display:flex;flex-direction:column;gap:.6rem;height:100%}
+.contrast-col.after{border-color:rgba(0,204,136,.25)}
+.contrast-col.after::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--lc),transparent);border-radius:18px 18px 0 0}
+.contrast-col{position:relative;overflow:hidden}
+.contrast-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(.8rem,1.3vw,1rem);letter-spacing:.2em;text-transform:uppercase;margin-bottom:.2rem}
+.contrast-item{display:flex;align-items:flex-start;gap:.5rem;font-size:var(--small);color:var(--muted);line-height:1.4}
+.vs-circle{width:clamp(2.5rem,5vw,3.5rem);height:clamp(2.5rem,5vw,3.5rem);border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,2vw,1.4rem);color:var(--dim);flex-shrink:0}
+
+/* SLIDE 5 — PROTOTIPO */
+#s5{background:linear-gradient(140deg,#0d0000 0%,#0d0d0d 55%,#00120a 100%);align-items:center;justify-content:center}
+.proto-wrapper{display:flex;gap:clamp(1.5rem,3.5vw,3.5rem);align-items:center;max-width:min(96vw,1120px);padding:var(--pad)}
+.proto-info{flex:1;min-width:0;max-width:300px}
+.proto-check{display:flex;align-items:center;gap:.4rem;font-size:var(--small);color:var(--muted)}
+
+/* SLIDE 6 — DOS CAMINOS */
+#s6{background:#0d0d0d}
+.path-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem,2.5vw,2rem);flex:1;max-height:min(64vh,500px)}
+.path-card{background:var(--bg2);border:2px solid var(--border);border-radius:20px;padding:clamp(1.2rem,3.5vh,2.5rem);display:flex;flex-direction:column;gap:.6rem;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.path-card:hover{transform:translateY(-3px)}
+.path-card.prem{border-color:rgba(204,0,0,.3)}.path-card.prem::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--gold))}
+.path-card.low{border-color:rgba(0,204,136,.25)}.path-card.low::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--lc),transparent)}
+.path-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3.5vw,3rem);line-height:1.1}
+.path-desc{font-size:var(--small);color:var(--muted);line-height:1.6}
+.path-feat{display:flex;align-items:center;gap:.38rem;font-size:var(--small);color:var(--muted)}
+.path-feat::before{content:'→';color:var(--dim);flex-shrink:0}
+
+/* SLIDE 7 — CTA */
+#s7{background:#080808;align-items:center;justify-content:center;text-align:center}
+#s7::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(204,0,0,.07) 0%,transparent 70%)}
+.step-card{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:clamp(.8rem,2.5vh,1.8rem);text-align:left;position:relative;overflow:hidden}
+.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:rgba(255,184,0,.18);line-height:1}
+.step-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.7vw,1.3rem);margin:.15rem 0}
+.step-desc{font-size:var(--small);color:var(--muted);line-height:1.5}
+
+@media(max-height:700px){:root{--pad:clamp(1rem,3vw,2.5rem);--gap:clamp(.5rem,1.5vh,1.2rem);--h2:clamp(1.4rem,4vw,3rem)}}
+@media(max-height:600px){:root{--pad:clamp(.8rem,2.5vw,1.8rem);--gap:clamp(.4rem,1vh,.9rem);--body:clamp(.78rem,1.2vw,.95rem)} #navDots{display:none}}
+@media(max-width:600px){.opp-grid{grid-template-columns:1fr}.contrast-grid{grid-template-columns:1fr}.path-grid{grid-template-columns:1fr}.proto-info{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progressBar"></div>
+<nav id="navDots" aria-label="Navegación"></nav>
+
+<!-- ====================================
+     SLIDE 1 – PORTADA
+     ==================================== -->
+<section class="slide" id="s1">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:var(--gap);padding:var(--pad);text-align:center">
+    <div class="reveal" style="font-size:clamp(2.5rem,7vh,5.5rem)">🍔</div>
+    <div class="reveal" data-delay="2">
+      <img src="assets/MRTASTY02.webp" alt="Mr. Tasty" style="max-height:clamp(80px,18vh,180px);max-width:min(80vw,520px);object-fit:contain;filter:drop-shadow(0 4px 20px rgba(204,0,0,.35))">
+    </div>
+    <div class="reveal" data-delay="3">
+      <div style="width:36px;height:2px;background:var(--gold);margin:0 auto .8rem"></div>
+      <p style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5.5vw,4.5rem);line-height:1;letter-spacing:.02em">¿Y si tu local<br>vendiera más, solo?</p>
+      <p style="font-size:var(--body);color:var(--muted);max-width:500px;line-height:1.65;margin:.6rem auto 0">Lo que los datos de la industria dicen sobre el futuro del pedido en fast food.</p>
+    </div>
+    <div class="reveal" data-delay="4" style="display:flex;gap:clamp(1.5rem,4vw,3.5rem);flex-wrap:wrap;justify-content:center;align-items:center">
+      <img src="assets/MRTASTY02.webp" alt="Mr. Tasty" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+      <img src="assets/MilaYGO01.webp" alt="Mila & Go" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+      <img src="assets/LogoElDesembarco001.webp" alt="El Desembarco" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+    </div>
+  </div>
+  <div class="slide-num">1 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 2 – EL PROBLEMA
+     ==================================== -->
+<section class="slide" id="s2">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Datos de la industria</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">El problema ya existe en tu local</h2>
+      <p style="font-size:var(--small);color:var(--dim);margin-top:.3rem" class="reveal" data-delay="2">Basado en estudios de Tillster, CivicScience y QSR Magazine</p>
+    </div>
+    <div class="opp-grid reveal" data-delay="3">
+
+      <div class="opp-card">
+        <div class="opp-num">36%</div>
+        <div class="opp-title">Clientes perdidos por la espera</div>
+        <div class="opp-desc">1 de cada 3 clientes eligió otro local porque la fila era demasiado larga. Esa venta no vuelve — y el cliente tampoco, tan fácil.</div>
+        <div class="opp-source">Fuente: CivicScience / QSR Magazine Drive-Thru Report 2024</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num">61%</div>
+        <div class="opp-title">Tus clientes ya prefieren el kiosko</div>
+        <div class="opp-desc">En 2023 era el 36%. Hoy el 61% de los consumidores prefiere pedir en kiosko antes que con un cajero. La demanda creció 70% en dos años.</div>
+        <div class="opp-source">Fuente: Tillster Phygital Index 2025</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num" style="font-size:clamp(1.8rem,4vw,3.5rem);padding-top:.3rem">ERROR<br>HUMANO</div>
+        <div class="opp-title">Cajero → cocina: el eslabón más débil</div>
+        <div class="opp-desc">Los errores de comunicación entre el cajero y la cocina son la causa más frecuente de reclamos, retrabajos y clientes insatisfechos en fast food.</div>
+        <div class="opp-source">Fuente: QSR Magazine Operations Report 2024</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num">76%</div>
+        <div class="opp-title">Upselling que depende de quién atiende</div>
+        <div class="opp-desc">El 76% de los usuarios de kiosko termina agregando ítems extra. Con cajeros, ese porcentaje varía según el turno, el humor y la carga de trabajo.</div>
+        <div class="opp-source">Fuente: Tillster Phygital Index Report 2025</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="slide-num">2 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 3 – LO QUE HACEN LOS LÍDERES
+     ==================================== -->
+<section class="slide" id="s3">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Benchmarks globales</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Lo que hacen McDonald's,<br>Burger King y Wendy's</h2>
+    </div>
+    <div class="stat-row reveal" data-delay="3">
+      <div class="bigstat">
+        <div class="bigstat-num">+30%</div>
+        <div class="bigstat-label">Ticket promedio con kioscos</div>
+        <div class="bigstat-sub">McDonald's Corp. — global</div>
+      </div>
+      <div class="bigstat">
+        <div class="bigstat-num">+25%</div>
+        <div class="bigstat-label">Facturación en locales con kioscos vs. solo cajeros</div>
+        <div class="bigstat-sub">McDonald's, Burger King, Wendy's</div>
+      </div>
+      <div class="bigstat">
+        <div class="bigstat-num">90%</div>
+        <div class="bigstat-label">De los locales de McDonald's globales ya tienen kioscos</div>
+        <div class="bigstat-sub">McDonald's Corp. Annual Report 2024</div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="4" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:.75rem 1.1rem;display:flex;align-items:center;gap:.9rem">
+      <span style="font-size:1.3rem;flex-shrink:0">💡</span>
+      <span style="font-size:var(--small);color:var(--muted);line-height:1.5">El kiosko no reemplaza al equipo — <strong style="color:var(--text)">libera al equipo para cocinar y entregar mejor</strong>. El cajero pasa a ser hospitalidad, no digitador de pedidos.</span>
+    </div>
+  </div>
+  <div class="slide-num">3 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 4 – LA OPORTUNIDAD
+     ==================================== -->
+<section class="slide" id="s4">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">La oportunidad</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Tus clientes ya lo quieren.</h2>
+      <p style="font-size:var(--body);color:var(--muted);margin-top:.3rem" class="reveal" data-delay="2">Cada turno sin kiosko es dinero que se va con el cliente que no esperó.</p>
+    </div>
+    <div class="contrast-grid reveal" data-delay="3">
+
+      <div class="contrast-col">
+        <div class="contrast-label" style="color:#f87171">😤 Hoy, sin kiosko</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>El cliente llega, ve la fila y duda</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>Espera que lo atiendan para pedir</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>El cajero toma el pedido de memoria o en papel</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>Cocina recibe el pedido con posibles errores</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>El upselling depende de si el cajero pregunta</div>
+        <div class="contrast-item"><span style="color:#f87171;flex-shrink:0">✗</span>El cliente espera sin saber cuánto falta</div>
+      </div>
+
+      <div class="vs-circle">VS</div>
+
+      <div class="contrast-col after">
+        <div class="contrast-label" style="color:var(--lc)">✨ Con kiosko</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>El cliente toca la pantalla y elige solo</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>Paga en el momento, sin esperar a nadie</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>La comanda llega directo a cocina, sin intermediarios</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>Cero errores de comunicación</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>El sistema sugiere extras en cada pedido, siempre</div>
+        <div class="contrast-item"><span style="color:#4ade80;flex-shrink:0">✓</span>Recibe notificación cuando su pedido está listo</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="slide-num">4 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 5 – PROTOTIPO
+     ==================================== -->
+<section class="slide" id="s5">
+  <div style="display:flex;align-items:center;justify-content:center;height:100%">
+    <div class="proto-wrapper">
+      <div class="proto-info reveal">
+        <p class="label">Prototipo interactivo</p>
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,3.2vw,2.8rem);line-height:1;margin-bottom:.6rem">Probalo vos mismo</h3>
+        <p style="font-size:var(--small);color:var(--muted);line-height:1.6;margin-bottom:.9rem">Así ve y vive el pedido tu cliente. Clickeable y funcional.</p>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Menú con productos y precios</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Carrito en tiempo real</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Múltiples métodos de pago</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Confirmación de pedido</div>
+        </div>
+      </div>
+      <div class="reveal" data-delay="2" style="flex-shrink:0">
+        <iframe
+          src="kiosko-proto.html"
+          title="Prototipo kiosko Mr. Tasty"
+          style="border:none;display:block;width:clamp(400px,48vw,600px);height:clamp(620px,88vh,900px);border-radius:16px;overflow:hidden"
+          scrolling="no"
+          allowtransparency="true"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">5 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 6 – DOS CAMINOS
+     ==================================== -->
+<section class="slide" id="s6">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Dos opciones</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">¿Cuál se adapta mejor<br>a tu red?</h2>
+      <p style="font-size:var(--small);color:var(--muted);margin-top:.3rem" class="reveal" data-delay="2">Dos caminos para llegar al mismo resultado. La elección depende de tu operación.</p>
+    </div>
+    <div class="path-grid reveal" data-delay="3">
+
+      <div class="path-card prem">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:var(--small);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--red)">Opción A · Experiencia Premium</div>
+        <div class="path-name">🖥️ Kiosko Físico</div>
+        <div class="path-desc">Pantallas táctiles instaladas en el local. El cliente interactúa con el hardware de la marca — una experiencia de marca completa y autónoma.</div>
+        <div style="height:1px;background:var(--border);margin:.2rem 0"></div>
+        <div class="path-feat">2 pantallas táctiles 21.5" por local</div>
+        <div class="path-feat">Pedido, pago y comanda: todo integrado</div>
+        <div class="path-feat">Impresora fiscal homologada AFIP</div>
+        <div class="path-feat">Integración directa con Tango Restó</div>
+        <div class="path-feat">Experiencia de marca 100% controlada</div>
+      </div>
+
+      <div class="path-card low">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:var(--small);font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lc)">Opción B · Arranque Rápido</div>
+        <div class="path-name">📱 App Web QR</div>
+        <div class="path-desc">El cliente escanea un QR con su celular y pide desde ahí. Sin instalar nada. Funciona en iOS y Android. Ideal para validar resultados antes de invertir en hardware.</div>
+        <div style="height:1px;background:var(--border);margin:.2rem 0"></div>
+        <div class="path-feat">Sin hardware, sin obra en el local</div>
+        <div class="path-feat">Funciona en iOS y Android sin instalar nada</div>
+        <div class="path-feat">Pago online con Mercado Pago y MODO</div>
+        <div class="path-feat">Notificación automática cuando el pedido está listo</div>
+        <div class="path-feat">Activo en semanas, no meses</div>
+      </div>
+
+    </div>
+    <div class="reveal" data-delay="4" style="background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:.6rem 1rem;font-size:var(--small);color:var(--muted);text-align:center">
+      💬 En la próxima reunión analizamos juntos cuál encaja mejor con el volumen y la operación de cada local.
+    </div>
+  </div>
+  <div class="slide-num">6 / 7</div>
+</section>
+
+<!-- ====================================
+     SLIDE 7 – PRÓXIMOS PASOS
+     ==================================== -->
+<section class="slide" id="s7">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:var(--gap);padding:var(--pad);text-align:center">
+    <div>
+      <p class="label reveal">¿Seguimos?</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1;max-width:700px" class="reveal" data-delay="2">Esta reunión es<br>el primer paso</h2>
+    </div>
+    <div style="display:flex;gap:clamp(.7rem,2vw,1.5rem);width:100%;max-width:min(90vw,780px)" class="reveal" data-delay="3">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-name">Contanos tu local</div>
+        <div class="step-desc">¿Cuántos pedidos por día? ¿Cuántos cajeros? ¿Dónde está el mayor cuello de botella hoy?</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-name">Te mostramos cómo encajaría</div>
+        <div class="step-desc">Con los datos de tu operación, armamos una proyección personalizada — no números genéricos.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-name">Sin compromiso</div>
+        <div class="step-desc">La próxima reunión es con los números reales de tu negocio sobre la mesa. Sin presión, sin apuro.</div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="4">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.8vw,2.2rem);color:var(--gold);margin-bottom:.2rem">¿Cuándo nos juntamos?</div>
+      <div style="font-size:var(--small);color:var(--muted)">Coordinemos la reunión con números reales de tu operación</div>
+    </div>
+  </div>
+  <div class="slide-num">7 / 7</div>
+</section>
+
+<script>
+class Deck {
+  constructor(){
+    this.slides=document.querySelectorAll('.slide');
+    this.total=this.slides.length;
+    this.cur=0;
+    this.buildDots();
+    this.bar=document.getElementById('progressBar');
+    this.setupObserver();
+    this.setupKeys();
+    this.setupTouch();
+    this.setupWheel();
+    this.goTo(0);
+  }
+  buildDots(){
+    const nav=document.getElementById('navDots');
+    this.slides.forEach((_,i)=>{
+      const d=document.createElement('span');
+      d.className='nav-dot'+(i===0?' active':'');
+      d.addEventListener('click',()=>this.goTo(i));
+      nav.appendChild(d);
+    });
+  }
+  update(){
+    if(this.bar) this.bar.style.width=((this.cur/(this.total-1))*100)+'%';
+    document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===this.cur));
+  }
+  setupObserver(){
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          const i=Array.from(this.slides).indexOf(e.target);
+          if(i!==this.cur){this.cur=i;this.update();}
+        }
+      });
+    },{threshold:0.5});
+    this.slides.forEach(s=>obs.observe(s));
+  }
+  goTo(i){
+    i=Math.max(0,Math.min(this.total-1,i));
+    this.slides[i].scrollIntoView({behavior:'smooth'});
+    this.cur=i; this.update();
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+      if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();this.goTo(this.cur+1);}
+      if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();this.goTo(this.cur-1);}
+      if(e.key==='Home'){e.preventDefault();this.goTo(0);}
+      if(e.key==='End'){e.preventDefault();this.goTo(this.total-1);}
+    });
+  }
+  setupTouch(){
+    let sy=0;
+    document.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      const dy=sy-e.changedTouches[0].clientY;
+      if(Math.abs(dy)>50) dy>0?this.goTo(this.cur+1):this.goTo(this.cur-1);
+    });
+  }
+  setupWheel(){
+    let last=0;
+    document.addEventListener('wheel',e=>{
+      if(e.target.closest('iframe')) return;
+      const now=Date.now();
+      if(now-last<800) return;
+      last=now; e.preventDefault();
+      e.deltaY>0?this.goTo(this.cur+1):this.goTo(this.cur-1);
+    },{passive:false});
+  }
+}
+new Deck();
+</script>
+</body>
+</html>

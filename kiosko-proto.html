@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr. Tasty – Kiosko</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET ===== */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root {
+      --red:#CC0000; --red2:#990000; --gold:#FFB800; --green:#22c55e;
+      --bg:#0a0a0a; --bg2:#161616; --bg3:#1f1f1f; --bg4:#2a2a2a;
+      --text:#f5f5f5; --muted:#888; --dim:#444;
+      --radius:14px; --ease:cubic-bezier(.16,1,.3,1);
+    }
+    html, body { width:100%; height:100%; background:var(--bg); overflow:hidden; color:var(--text); font-family:'Barlow Condensed',sans-serif; }
+
+    /* ===== DEVICE FRAME ===== */
+    .device { width:100vw; height:100vh; display:flex; flex-direction:column; position:relative; background:var(--bg); overflow:hidden; }
+
+    /* ===== SCREENS ===== */
+    .screen { position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg); }
+    .screen.on { display:flex; }
+
+    /* ===== WELCOME SCREEN ===== */
+    #sc-welcome {
+      background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(204,0,0,.18) 0%, transparent 70%), #0a0a0a;
+      align-items:center; justify-content:center; gap:0; cursor:pointer;
+    }
+    .welcome-logo { width:min(72vw, 340px); filter:drop-shadow(0 0 40px rgba(204,0,0,.5)); animation:logoPulse 3s ease-in-out infinite; }
+    @keyframes logoPulse { 0%,100%{filter:drop-shadow(0 0 40px rgba(204,0,0,.5))} 50%{filter:drop-shadow(0 0 60px rgba(204,0,0,.8))} }
+    .welcome-tagline { font-family:'Bebas Neue',sans-serif; font-size:clamp(1.2rem,4vw,2rem); color:var(--muted); letter-spacing:.15em; margin-top:1.2rem; }
+    .welcome-tap { font-size:clamp(.85rem,2.5vw,1.1rem); color:var(--dim); margin-top:2.5rem; animation:blink 1.8s ease-in-out infinite; letter-spacing:.08em; }
+    @keyframes blink { 0%,100%{opacity:.3} 50%{opacity:1} }
+    .welcome-brands { display:flex; gap:2rem; align-items:center; margin-top:3rem; opacity:.35; }
+    .welcome-brands img { height:28px; object-fit:contain; filter:brightness(0) invert(1); }
+
+    /* ===== MAIN HEADER ===== */
+    .main-header {
+      background:var(--red); padding:.55rem .9rem;
+      display:flex; align-items:center; justify-content:space-between; flex-shrink:0;
+      box-shadow:0 2px 12px rgba(0,0,0,.4);
+    }
+    .header-logo { height:28px; object-fit:contain; filter:brightness(0) invert(1); }
+    .header-brand { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; letter-spacing:.06em; }
+    .cart-btn {
+      background:rgba(255,255,255,.15); border:none; border-radius:10px;
+      color:#fff; padding:.38rem .7rem; cursor:pointer; display:flex; align-items:center;
+      gap:.4rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem;
+      transition:background .2s; position:relative;
+    }
+    .cart-btn:hover { background:rgba(255,255,255,.25); }
+    .cart-badge {
+      background:var(--gold); color:#000; border-radius:50%; width:18px; height:18px;
+      font-size:.65rem; font-weight:700; display:flex; align-items:center; justify-content:center;
+      position:absolute; top:-6px; right:-6px;
+      transform:scale(0); transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    .cart-badge.show { transform:scale(1); }
+
+    /* ===== CATEGORY TABS ===== */
+    .cat-bar {
+      background:var(--bg2); border-bottom:1px solid var(--bg4);
+      display:flex; gap:0; overflow-x:auto; flex-shrink:0;
+      scrollbar-width:none;
+    }
+    .cat-bar::-webkit-scrollbar { display:none; }
+    .cat-tab {
+      padding:.6rem 1rem; font-family:'Barlow Condensed',sans-serif; font-weight:700;
+      font-size:.95rem; color:var(--muted); cursor:pointer; white-space:nowrap;
+      border-bottom:2px solid transparent; transition:color .2s, border-color .2s;
+      flex-shrink:0; letter-spacing:.03em;
+    }
+    .cat-tab.active { color:var(--red); border-bottom-color:var(--red); }
+
+    /* ===== PRODUCT GRID ===== */
+    .product-area { flex:1; overflow-y:auto; padding:.7rem; scrollbar-width:none; }
+    .product-area::-webkit-scrollbar { display:none; }
+    .product-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; }
+    .product-card {
+      background:var(--bg2); border:1px solid var(--bg4); border-radius:var(--radius);
+      overflow:hidden; cursor:pointer; position:relative;
+      transition:border-color .2s, transform .15s;
+    }
+    .product-card:active { transform:scale(.97); }
+    .product-card.in-cart { border-color:rgba(204,0,0,.5); }
+    .product-img {
+      width:100%; aspect-ratio:16/9; object-fit:cover; background:var(--bg3);
+      display:block;
+    }
+    .product-img-placeholder {
+      width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center;
+      font-size:2.5rem; background:var(--bg3);
+    }
+    .product-info { padding:.5rem .55rem .55rem; }
+    .product-name { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem; line-height:1.2; }
+    .product-desc { font-size:.72rem; color:var(--muted); margin-top:.1rem; line-height:1.3; }
+    .product-footer { display:flex; align-items:center; justify-content:space-between; margin-top:.4rem; }
+    .product-price { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--gold); }
+    .add-btn {
+      width:1.9rem; height:1.9rem; border-radius:50%; border:none; background:var(--red);
+      color:#fff; font-size:1.2rem; cursor:pointer; display:flex; align-items:center;
+      justify-content:center; transition:transform .15s, background .2s; flex-shrink:0;
+    }
+    .add-btn:hover { background:var(--red2); }
+    .add-btn:active { transform:scale(.88); }
+    .qty-pill {
+      position:absolute; top:6px; left:6px; background:var(--red);
+      color:#fff; border-radius:20px; padding:.12rem .45rem;
+      font-family:'Bebas Neue',sans-serif; font-size:.9rem; line-height:1;
+      opacity:0; transform:scale(0); transition:all .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    .qty-pill.show { opacity:1; transform:scale(1); }
+
+    /* ===== STICKY CART BAR ===== */
+    .cart-bar {
+      background:linear-gradient(135deg, var(--red), var(--red2));
+      padding:.6rem .9rem; display:none; align-items:center; justify-content:space-between;
+      cursor:pointer; border-top:1px solid rgba(255,184,0,.25); flex-shrink:0;
+      transition:transform .3s var(--ease);
+    }
+    .cart-bar.show { display:flex; }
+    .cart-bar-l { font-weight:700; font-size:1rem; display:flex; align-items:center; gap:.4rem; }
+    .cart-bar-r { font-weight:700; font-size:1rem; color:var(--gold); }
+
+    /* ===== EXTRAS OVERLAY ===== */
+    .extras-overlay {
+      position:absolute; inset:0; background:rgba(0,0,0,.7); z-index:50;
+      display:none; align-items:flex-end;
+      backdrop-filter:blur(3px);
+    }
+    .extras-overlay.show { display:flex; }
+    .extras-sheet {
+      background:var(--bg2); border-radius:22px 22px 0 0;
+      padding:1rem 1rem .8rem; width:100%;
+      border-top:1px solid var(--bg4);
+      animation:slideUp .35s var(--ease);
+    }
+    @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+    .extras-handle { width:36px; height:3px; background:var(--dim); border-radius:2px; margin:0 auto .75rem; }
+    .extras-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; margin-bottom:.15rem; }
+    .extras-subtitle { font-size:.78rem; color:var(--muted); margin-bottom:.75rem; }
+    .extras-list { display:flex; flex-direction:column; gap:.4rem; margin-bottom:.75rem; }
+    .extra-item {
+      background:var(--bg3); border:1px solid var(--bg4); border-radius:10px;
+      padding:.5rem .7rem; display:flex; align-items:center; gap:.5rem;
+      cursor:pointer; transition:border-color .2s, background .2s;
+    }
+    .extra-item.selected { border-color:var(--red); background:rgba(204,0,0,.08); }
+    .extra-check {
+      width:20px; height:20px; border:2px solid var(--dim); border-radius:5px;
+      flex-shrink:0; display:flex; align-items:center; justify-content:center;
+      transition:border-color .2s, background .2s; font-size:.75rem;
+    }
+    .extra-item.selected .extra-check { border-color:var(--red); background:var(--red); }
+    .extra-text { flex:1; }
+    .extra-name { font-weight:700; font-size:.88rem; }
+    .extra-sub { font-size:.72rem; color:var(--muted); }
+    .extra-price { font-family:'Bebas Neue',sans-serif; font-size:1rem; color:var(--gold); flex-shrink:0; }
+    .extras-footer { display:flex; flex-direction:column; gap:.4rem; }
+    .extras-total-row { display:flex; justify-content:space-between; align-items:center; padding:.2rem 0; }
+    .extras-total-label { font-size:.85rem; color:var(--muted); }
+    .extras-total-val { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--gold); }
+    .btn-primary {
+      background:linear-gradient(135deg,var(--red),var(--red2)); border:none; border-radius:11px;
+      color:#fff; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1rem;
+      padding:.65rem; cursor:pointer; width:100%; letter-spacing:.04em; transition:opacity .2s;
+    }
+    .btn-primary:hover { opacity:.88; }
+    .btn-secondary {
+      background:transparent; border:1px solid var(--bg4); border-radius:11px;
+      color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-size:.95rem;
+      padding:.55rem; cursor:pointer; width:100%; transition:border-color .2s;
+    }
+    .btn-secondary:hover { border-color:var(--muted); }
+
+    /* ===== CART SCREEN ===== */
+    .screen-header {
+      background:var(--bg2); padding:.65rem .9rem; display:flex; align-items:center;
+      gap:.6rem; border-bottom:1px solid var(--bg4); flex-shrink:0;
+    }
+    .back-btn {
+      background:none; border:1px solid var(--bg4); border-radius:8px;
+      color:var(--muted); padding:.3rem .6rem; cursor:pointer;
+      font-family:'Barlow Condensed',sans-serif; font-size:.9rem; transition:border-color .2s;
+      flex-shrink:0;
+    }
+    .back-btn:hover { border-color:var(--text); color:var(--text); }
+    .screen-title { font-family:'Bebas Neue',sans-serif; font-size:1.3rem; flex:1; }
+    .scrollable { flex:1; overflow-y:auto; padding:.7rem; display:flex; flex-direction:column; gap:.45rem; scrollbar-width:none; }
+    .scrollable::-webkit-scrollbar { display:none; }
+    .cart-item {
+      background:var(--bg2); border:1px solid var(--bg4); border-radius:11px;
+      padding:.6rem .75rem; display:flex; gap:.6rem; align-items:center;
+    }
+    .cart-item-img { width:44px; height:44px; object-fit:cover; border-radius:8px; flex-shrink:0; background:var(--bg3); }
+    .cart-item-info { flex:1; min-width:0; }
+    .cart-item-name { font-weight:700; font-size:.9rem; }
+    .cart-item-extras { font-size:.7rem; color:var(--muted); margin-top:.1rem; }
+    .cart-item-price { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.9rem; color:var(--gold); }
+    .qty-ctrl { display:flex; align-items:center; gap:.35rem; flex-shrink:0; }
+    .qty-btn {
+      width:26px; height:26px; border-radius:50%; border:1px solid var(--bg4);
+      background:var(--bg3); color:var(--text); font-size:1rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:background .15s;
+    }
+    .qty-btn:hover { background:var(--bg4); }
+    .qty-num { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; min-width:16px; text-align:center; }
+    .cart-divider { border:none; border-top:1px solid var(--bg4); margin:.1rem 0; }
+    .cart-total-row { display:flex; justify-content:space-between; align-items:center; padding:.35rem 0; }
+    .cart-total-label { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1rem; }
+    .cart-total-val { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--gold); }
+    .screen-footer { padding:.65rem .7rem; display:flex; flex-direction:column; gap:.4rem; flex-shrink:0; border-top:1px solid var(--bg4); }
+    .empty-cart { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; gap:.5rem; color:var(--dim); }
+    .empty-cart-icon { font-size:3rem; }
+
+    /* ===== PAYMENT SCREEN ===== */
+    .pay-amount-box {
+      background:var(--bg2); border:1px solid var(--bg4); border-radius:12px;
+      padding:.7rem 1rem; margin:.7rem; text-align:center; flex-shrink:0;
+    }
+    .pay-amount-label { font-size:.8rem; color:var(--muted); }
+    .pay-amount-val { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:var(--gold); }
+    .pay-methods { display:flex; flex-direction:column; gap:.7rem; padding:0 .8rem; flex:1; justify-content:center; }
+    .pay-method {
+      background:var(--bg2); border:1.5px solid var(--bg4); border-radius:18px;
+      padding:1.2rem 1.2rem; display:flex; align-items:center; gap:1.1rem;
+      cursor:pointer; transition:border-color .25s, background .25s, transform .15s;
+      position:relative; overflow:hidden;
+    }
+    .pay-method::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
+    .pay-method:hover { border-color:rgba(255,184,0,.5); background:var(--bg3); }
+    .pay-method:active { transform:scale(.97); }
+    .pay-logo-wrap { width:140px; height:80px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:#fff; border-radius:14px; padding:.6rem 1rem; box-shadow:0 2px 12px rgba(0,0,0,.3); }
+    .pay-logo { max-width:124px; max-height:66px; object-fit:contain; }
+    .pay-method-text { flex:1; }
+    .pay-method-name { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; letter-spacing:.03em; line-height:1; }
+    .pay-method-sub { font-size:.8rem; color:var(--muted); margin-top:.2rem; }
+    .pay-method-arrow { color:var(--dim); font-size:1.4rem; flex-shrink:0; }
+    .pay-secure { display:flex; align-items:center; justify-content:center; gap:.35rem; font-size:.72rem; color:var(--dim); padding:.5rem; flex-shrink:0; }
+
+    /* ===== QR SCREEN ===== */
+    .qr-box {
+      background:#fff; border-radius:20px; padding:18px; display:inline-block;
+      box-shadow:0 12px 40px rgba(0,0,0,.6);
+    }
+    .qr-screen-body {
+      flex:1; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:.75rem; padding:.8rem 1rem; text-align:center;
+    }
+    .qr-method-logo-wrap { background:#fff; border-radius:14px; padding:.5rem .9rem; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 10px rgba(0,0,0,.3); }
+    .qr-method-logo { height:52px; max-width:200px; object-fit:contain; }
+    .qr-instruction { font-size:.88rem; color:var(--muted); max-width:220px; line-height:1.4; }
+    .qr-total { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; color:var(--gold); }
+    .qr-timer { font-size:.78rem; color:var(--dim); }
+    .timer-num { color:var(--muted); font-family:'Bebas Neue',sans-serif; font-size:1rem; }
+
+    /* ===== PINPAD SCREEN ===== */
+    .pinpad-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.8rem; padding:1rem; text-align:center; }
+    .pinpad-device {
+      background:var(--bg3); border:2px solid var(--bg4); border-radius:16px;
+      padding:1.2rem .9rem; width:140px; display:flex; flex-direction:column;
+      align-items:center; gap:.5rem; position:relative;
+    }
+    .pinpad-screen { background:#0a1a0a; border-radius:8px; width:100%; padding:.5rem .3rem; font-size:.65rem; color:#4ade80; font-family:monospace; text-align:center; border:1px solid #1a3a1a; }
+    .pinpad-keys { display:grid; grid-template-columns:repeat(3,1fr); gap:.3rem; width:100%; }
+    .pinpad-key { background:var(--bg4); border:none; border-radius:7px; padding:.45rem 0; color:var(--text); font-size:.85rem; font-family:'Barlow Condensed',sans-serif; font-weight:700; cursor:pointer; transition:background .1s; }
+    .pinpad-key:active { background:var(--dim); }
+    .pinpad-wave { font-size:2.5rem; animation:wave 1.5s ease-in-out infinite; }
+    @keyframes wave { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .pinpad-instruction { font-size:.88rem; color:var(--muted); max-width:200px; line-height:1.4; }
+
+    /* ===== SUCCESS SCREEN ===== */
+    .success-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:1rem; text-align:center; }
+    .success-icon { font-size:4rem; animation:pop .5s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .success-title { font-family:'Bebas Neue',sans-serif; font-size:2.5rem; color:var(--green); }
+    .success-order-box {
+      background:#0d1f10; border:1px solid rgba(34,197,94,.2); border-radius:14px;
+      padding:.8rem 1.2rem; width:100%;
+    }
+    .success-order-label { font-size:.82rem; color:var(--muted); }
+    .success-order-num { font-family:'Bebas Neue',sans-serif; font-size:3.5rem; color:var(--green); line-height:1; }
+    .success-message { font-size:.85rem; color:var(--muted); line-height:1.5; }
+    .success-total { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; color:var(--gold); }
+  </style>
+</head>
+<body>
+<div class="device">
+
+  <!-- ===== SCREEN 0: WELCOME ===== -->
+  <div class="screen on" id="sc-welcome" onclick="showMenu()">
+    <img class="welcome-logo" src="assets/MRTASTY02.webp" alt="Mr. Tasty" style="margin-top:auto">
+    <p class="welcome-tagline">Pedí rápido. Comé rico.</p>
+    <p class="welcome-tap">TOCÁ PARA COMENZAR</p>
+    <div class="welcome-brands" style="margin-bottom:auto;margin-top:2.5rem">
+      <img src="assets/MRTASTY02.webp" alt="Mr. Tasty">
+      <img src="assets/MilaYGO01.webp" alt="Mila & Go">
+      <img src="assets/LogoElDesembarco001.webp" alt="El Desembarco">
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 1: MENU ===== -->
+  <div class="screen" id="sc-menu">
+    <!-- Header -->
+    <div class="main-header">
+      <img class="header-logo" src="assets/MRTASTY02.webp" alt="Mr. Tasty">
+      <span class="header-brand">Mr. Tasty</span>
+      <button class="cart-btn" onclick="goCart()">
+        🛒 <span id="cartCount">0</span>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
+    <!-- Category tabs -->
+    <div class="cat-bar" id="catBar"></div>
+    <!-- Product grid -->
+    <div class="product-area">
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+    <!-- Sticky cart bar -->
+    <div class="cart-bar" id="cartBar" onclick="goCart()">
+      <div class="cart-bar-l">🛒 <span id="cartBarCount">0</span> productos</div>
+      <div class="cart-bar-r"><span id="cartBarTotal">$0</span> · Ver pedido →</div>
+    </div>
+
+    <!-- EXTRAS OVERLAY -->
+    <div class="extras-overlay" id="extrasOverlay">
+      <div class="extras-sheet">
+        <div class="extras-handle"></div>
+        <div class="extras-title" id="extrasName">Extras</div>
+        <div class="extras-subtitle">¿Querés agregar algo?</div>
+        <div class="extras-list" id="extrasList"></div>
+        <div class="extras-footer">
+          <div class="extras-total-row">
+            <span class="extras-total-label">Total ítem:</span>
+            <span class="extras-total-val" id="extrasTotalVal">$0</span>
+          </div>
+          <button class="btn-primary" id="extrasAddBtn" onclick="confirmExtras()">Agregar al pedido →</button>
+          <button class="btn-secondary" onclick="closeExtras()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: CART ===== -->
+  <div class="screen" id="sc-cart">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goBack('sc-menu')">← Volver</button>
+      <span class="screen-title">Tu pedido</span>
+    </div>
+    <div class="scrollable" id="cartList"></div>
+    <div class="screen-footer">
+      <button class="btn-primary" onclick="goPay()" id="payBtn">Ir a pagar →</button>
+      <button class="btn-secondary" onclick="goBack('sc-menu')">+ Agregar más</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: PAGO ===== -->
+  <div class="screen" id="sc-pay">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goBack('sc-cart')">← Volver</button>
+      <span class="screen-title">Método de pago</span>
+    </div>
+    <div class="pay-amount-box">
+      <div class="pay-amount-label">Total a pagar</div>
+      <div class="pay-amount-val" id="payTotal">$0</div>
+    </div>
+    <div class="pay-methods">
+      <div class="pay-method" onclick="goQR('mp')">
+        <div class="pay-logo-wrap">
+          <img class="pay-logo" src="assets/mercadopago-logo-transparente.png" alt="Mercado Pago">
+        </div>
+        <div class="pay-method-text">
+          <div class="pay-method-name">Mercado Pago</div>
+          <div class="pay-method-sub">Escaneá el QR con tu app</div>
+        </div>
+        <span class="pay-method-arrow">›</span>
+      </div>
+      <div class="pay-method" onclick="goQR('modo')">
+        <div class="pay-logo-wrap">
+          <img class="pay-logo" src="assets/modo-logo-transparente.png" alt="MODO">
+        </div>
+        <div class="pay-method-text">
+          <div class="pay-method-name">MODO</div>
+          <div class="pay-method-sub">QR con billetera MODO</div>
+        </div>
+        <span class="pay-method-arrow">›</span>
+      </div>
+      <div class="pay-method" onclick="goPinpad()">
+        <div class="pay-logo-wrap">
+          <img class="pay-logo" src="assets/payway-logo-transparente.png" alt="Payway">
+        </div>
+        <div class="pay-method-text">
+          <div class="pay-method-name">Débito / Crédito</div>
+          <div class="pay-method-sub">Acercá o insertá tu tarjeta</div>
+        </div>
+        <span class="pay-method-arrow">›</span>
+      </div>
+    </div>
+    <div class="pay-secure">🔒 Pago seguro · Datos encriptados</div>
+  </div>
+
+  <!-- ===== SCREEN 4: QR ===== -->
+  <div class="screen" id="sc-qr">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goBack('sc-pay')">← Volver</button>
+      <span class="screen-title" id="qrTitle">QR Pago</span>
+    </div>
+    <div class="qr-screen-body">
+      <div class="qr-method-logo-wrap">
+        <img class="qr-method-logo" id="qrLogo" src="assets/mercadopago-logo-transparente.png" alt="">
+      </div>
+      <div class="qr-box">
+        <svg viewBox="0 0 90 90" width="240">
+          <rect x="5" y="5" width="30" height="30" rx="3" fill="#000"/><rect x="9" y="9" width="22" height="22" rx="2" fill="#fff"/><rect x="13" y="13" width="14" height="14" fill="#000"/>
+          <rect x="55" y="5" width="30" height="30" rx="3" fill="#000"/><rect x="59" y="9" width="22" height="22" rx="2" fill="#fff"/><rect x="63" y="13" width="14" height="14" fill="#000"/>
+          <rect x="5" y="55" width="30" height="30" rx="3" fill="#000"/><rect x="9" y="59" width="22" height="22" rx="2" fill="#fff"/><rect x="13" y="63" width="14" height="14" fill="#000"/>
+          <rect x="40" y="5" width="10" height="10" fill="#000"/><rect x="40" y="19" width="7" height="7" fill="#000"/>
+          <rect x="5" y="40" width="10" height="10" fill="#000"/><rect x="19" y="40" width="7" height="7" fill="#000"/>
+          <rect x="40" y="40" width="10" height="10" fill="#000"/><rect x="55" y="40" width="7" height="7" fill="#000"/>
+          <rect x="40" y="55" width="7" height="7" fill="#000"/><rect x="66" y="40" width="7" height="7" fill="#000"/>
+          <rect x="40" y="66" width="10" height="10" fill="#000"/><rect x="55" y="62" width="7" height="10" fill="#000"/>
+          <rect x="66" y="62" width="7" height="7" fill="#000"/><rect x="75" y="55" width="7" height="10" fill="#000"/>
+        </svg>
+      </div>
+      <div class="qr-total" id="qrTotal">$0</div>
+      <div class="qr-instruction">Abrí tu app, escaneá el código y confirmá el pago</div>
+      <div class="qr-timer">Expira en <span class="timer-num" id="qrTimer">60</span>s</div>
+      <button class="btn-primary" style="width:100%;max-width:280px" onclick="doConfirm()">✓ Simular pago exitoso</button>
+      <button class="btn-secondary" style="width:100%;max-width:280px" onclick="goBack('sc-pay')">← Otro método</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 5: PINPAD ===== -->
+  <div class="screen" id="sc-pinpad">
+    <div class="screen-header">
+      <button class="back-btn" onclick="goBack('sc-pay')">← Volver</button>
+      <span class="screen-title">Tarjeta</span>
+    </div>
+    <div class="pinpad-body">
+      <div class="pinpad-wave">💳</div>
+      <div class="pinpad-instruction">Acercá, insertá o deslizá tu tarjeta en el lector</div>
+      <div class="pinpad-device">
+        <div class="pinpad-screen">IMPORTE<br><span style="color:#88ff88;font-size:.9rem" id="pinpadAmt">$0</span><br><br>ACERQUE<br>TARJETA</div>
+        <div class="pinpad-keys">
+          <button class="pinpad-key">1</button><button class="pinpad-key">2</button><button class="pinpad-key">3</button>
+          <button class="pinpad-key">4</button><button class="pinpad-key">5</button><button class="pinpad-key">6</button>
+          <button class="pinpad-key">7</button><button class="pinpad-key">8</button><button class="pinpad-key">9</button>
+          <button class="pinpad-key" style="background:var(--red2);font-size:.65rem">CLR</button>
+          <button class="pinpad-key">0</button>
+          <button class="pinpad-key" style="background:#1a3a1a;color:#4ade80;font-size:.65rem">OK</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:.8rem;align-items:center">
+        <img src="assets/payway-logo-transparente.png" alt="Payway" style="height:22px;object-fit:contain;filter:brightness(0) invert(1);opacity:.5">
+      </div>
+      <button class="btn-primary" style="width:100%;max-width:280px;margin-top:.5rem" onclick="doConfirm()">✓ Simular pago exitoso</button>
+      <button class="btn-secondary" style="width:100%;max-width:280px" onclick="goBack('sc-pay')">← Otro método</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 6: SUCCESS ===== -->
+  <div class="screen" id="sc-success">
+    <div class="success-body">
+      <div class="success-icon">✅</div>
+      <div class="success-title">¡Pedido confirmado!</div>
+      <div class="success-order-box">
+        <div class="success-order-label">Número de orden</div>
+        <div class="success-order-num" id="successOrder">247</div>
+      </div>
+      <div class="success-total" id="successTotal">$0</div>
+      <div class="success-message">Tu comanda fue enviada a cocina.<br>Te llamamos cuando esté lista. 🍔</div>
+      <button class="btn-secondary" style="max-width:220px;margin-top:.5rem" onclick="doReset()">↩ Nuevo pedido</button>
+    </div>
+  </div>
+
+</div><!-- end device -->
+
+<script>
+/* ===== DATA ===== */
+const CATS = [
+  { id:'carne',   label:'🥩 Carne' },
+  { id:'pollo',   label:'🐔 Pollo' },
+  { id:'papas',   label:'🍟 Papas' },
+  { id:'bebidas', label:'🥤 Bebidas' },
+];
+
+const BASE = 'https://mrtasty.com.ar/wp-content/uploads/2025/12/';
+const MENU = {
+  carne: [
+    { id:'c1', name:'Cuarto con Queso', desc:'Medallón, queso cheddar',        price:4700, img:BASE+'JUNIOR-CARNE.webp',         extras:'burger' },
+    { id:'c2', name:'Doble Cuarto',     desc:'Doble medallón, doble queso',    price:7800, img:BASE+'CUARTO-DOBLE-CARNE.webp',   extras:'burger' },
+    { id:'c3', name:'Triple Cuarto',    desc:'Triple medallón, la más grande', price:10000,img:BASE+'CUARTO-TRIPLE-CARNE.webp',  extras:'burger' },
+    { id:'c4', name:'Clásica Carne',    desc:'Lechuga, tomate, mostaza',       price:4800, img:BASE+'JUNIOR-CARNE.webp',         extras:'burger' },
+  ],
+  pollo: [
+    { id:'p1', name:'Clásica Pollo',   desc:'Pollo crocante, lechuga, tomate', price:4800, img:BASE+'CLASICA-SIMPLE-POLLO.webp', extras:'burger' },
+    { id:'p2', name:'Cuarto Pollo',    desc:'Pollo jugoso, queso cheddar',     price:4600, img:BASE+'CUARTO-SIMPLE-POLLO.webp',  extras:'burger' },
+    { id:'p3', name:'Bacon Pollo',     desc:'Pollo, bacon crocante, BBQ',      price:5300, img:BASE+'BACON-SIMPLE-POLLO.webp',   extras:'burger' },
+    { id:'p4', name:'Junior Pollo',    desc:'Chicken junior clásico',          price:3500, img:BASE+'JUNIOR-POLLO.webp',         extras:'burger' },
+  ],
+  papas: [
+    { id:'f1', name:'Papas Chicas',      desc:'Crocantes con sal marina',      price:5500, img:BASE+'BANDEJA-DE-PAPAS-CHICAS.webp',  extras:'papas' },
+    { id:'f2', name:'Papas Cheddar',     desc:'Cheddar fundido y panceta',     price:7300, img:BASE+'BANDEJA-DE-PAPAS-CHEDDAR.webp', extras:null },
+    { id:'f3', name:'Nuggets con Papas', desc:'6 nuggets + papas chicas',      price:7500, img:BASE+'Nuggets-con-Papas.webp',         extras:null },
+    { id:'f4', name:'Estuche de Papas',  desc:'Papas en estuche personal',     price:2000, img:BASE+'BANDEJA-DE-PAPAS-CHICAS.webp',  extras:'papas' },
+  ],
+  bebidas: [
+    { id:'b1', name:'Coca-Cola 500cc',       desc:'Bien fría',         price:2600, img:'https://mrtasty.com.ar/wp-content/uploads/2025/12/CocaColaComun.webp' },
+    { id:'b2', name:'Coca-Cola Sin Azúcar',  desc:'Zero azúcar',       price:2600, img:'https://mrtasty.com.ar/wp-content/uploads/2025/12/CocaColaSinAzucar.webp' },
+    { id:'b3', name:'Sprite 500cc',          desc:'Refrescante',       price:2600, img:'https://mrtasty.com.ar/wp-content/uploads/2025/12/Sprite.webp' },
+    { id:'b4', name:'Agua Sin Gas',          desc:'500cc',             price:2600, img:'https://mrtasty.com.ar/wp-content/uploads/2025/12/AguaSinGas.webp' },
+  ],
+};
+
+const EXTRAS = {
+  burger: [
+    { id:'e1', name:'Extra Medallón', sub:'Carne o pollo',     price:2500 },
+    { id:'e2', name:'Extra Queso',    sub:'Cheddar fundido',   price:700 },
+    { id:'e3', name:'Extra Panceta',  sub:'Crocante',          price:1200 },
+    { id:'e4', name:'Salsa Especial', sub:'House sauce',       price:600 },
+  ],
+  papas: [
+    { id:'p1', name:'Agrandar a Grandes', sub:'+más papas',     price:2100 },
+    { id:'p2', name:'Agregar Cheddar',    sub:'Con panceta',    price:1800 },
+  ],
+};
+
+/* ===== STATE ===== */
+let cart = [];
+let curCat = 'carne';
+let extrasTarget = null;
+let selectedExtras = [];
+let qrTimerInterval = null;
+
+/* ===== HELPERS ===== */
+const fmt = n => '$' + n.toLocaleString('es-AR');
+const cartTotal = () => cart.reduce((s,i) => s + i.unitPrice * i.qty, 0);
+const cartCount = () => cart.reduce((s,i) => s + i.qty, 0);
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+
+/* ===== WELCOME → MENU ===== */
+function showMenu() {
+  buildCats();
+  renderProducts('carne');
+  show('sc-menu');
+}
+
+/* ===== CATEGORIES ===== */
+function buildCats() {
+  const bar = document.getElementById('catBar');
+  bar.innerHTML = CATS.map(c =>
+    `<div class="cat-tab${c.id===curCat?' active':''}" onclick="switchCat('${c.id}')">${c.label}</div>`
+  ).join('');
+}
+
+function switchCat(id) {
+  curCat = id;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.textContent.includes(CATS.find(c=>c.id===id).label.split(' ')[1])));
+  buildCats();
+  renderProducts(id);
+}
+
+/* ===== PRODUCT GRID ===== */
+function renderProducts(catId) {
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = MENU[catId].map(p => {
+    const inCart = cart.find(i => i.id === p.id);
+    const qty = inCart ? inCart.qty : 0;
+    const imgHtml = p.img
+      ? `<img class="product-img" src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="product-img-placeholder" style="display:none">${p.emoji||'🍔'}</div>`
+      : `<div class="product-img-placeholder" style="background:${p.color||'#1f1f1f'}">${p.emoji||'🍔'}</div>`;
+    return `<div class="product-card${qty>0?' in-cart':''}" id="card-${p.id}">
+      <div class="qty-pill${qty>0?' show':''}" id="qpill-${p.id}">${qty}×</div>
+      ${imgHtml}
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-footer">
+          <div class="product-price">${fmt(p.price)}</div>
+          <button class="add-btn" onclick="event.stopPropagation();openExtras('${p.id}')">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== EXTRAS ===== */
+function openExtras(productId) {
+  const p = Object.values(MENU).flat().find(i => i.id === productId);
+  if (!p) return;
+  extrasTarget = p;
+  selectedExtras = [];
+  document.getElementById('extrasName').textContent = p.name;
+  const list = document.getElementById('extrasList');
+  if (!p.extras || !EXTRAS[p.extras]) {
+    // No extras, add directly
+    addToCart(p, []);
+    return;
+  }
+  list.innerHTML = EXTRAS[p.extras].map(e =>
+    `<div class="extra-item" id="extra-${e.id}" onclick="toggleExtra('${e.id}')">
+      <div class="extra-check" id="check-${e.id}"></div>
+      <div class="extra-text">
+        <div class="extra-name">${e.name}</div>
+        <div class="extra-sub">${e.sub}</div>
+      </div>
+      <div class="extra-price">+${fmt(e.price)}</div>
+    </div>`
+  ).join('');
+  updateExtrasTotal();
+  document.getElementById('extrasOverlay').classList.add('show');
+}
+
+function toggleExtra(id) {
+  const extras = EXTRAS[extrasTarget.extras];
+  const ex = extras.find(e => e.id === id);
+  const idx = selectedExtras.findIndex(e => e.id === id);
+  if (idx >= 0) {
+    selectedExtras.splice(idx, 1);
+    document.getElementById('extra-'+id).classList.remove('selected');
+    document.getElementById('check-'+id).textContent = '';
+  } else {
+    selectedExtras.push(ex);
+    document.getElementById('extra-'+id).classList.add('selected');
+    document.getElementById('check-'+id).textContent = '✓';
+  }
+  updateExtrasTotal();
+}
+
+function updateExtrasTotal() {
+  const base = extrasTarget ? extrasTarget.price : 0;
+  const extrasSum = selectedExtras.reduce((s, e) => s + e.price, 0);
+  document.getElementById('extrasTotalVal').textContent = fmt(base + extrasSum);
+}
+
+function closeExtras() {
+  document.getElementById('extrasOverlay').classList.remove('show');
+  extrasTarget = null;
+  selectedExtras = [];
+}
+
+function confirmExtras() {
+  if (!extrasTarget) return;
+  addToCart(extrasTarget, [...selectedExtras]);
+  closeExtras();
+}
+
+/* ===== CART MANAGEMENT ===== */
+function addToCart(product, extras) {
+  const extrasPrice = extras.reduce((s, e) => s + e.price, 0);
+  const unitPrice = product.price + extrasPrice;
+  const key = product.id + (extras.map(e=>e.id).sort().join('-'));
+  const existing = cart.find(i => i.key === key);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ key, id:product.id, name:product.name, img:product.img||null, emoji:product.emoji||null, extras, extrasLabel:extras.map(e=>e.name).join(', '), unitPrice, qty:1 });
+  }
+  updateCartUI();
+  // Animate card
+  const card = document.getElementById('card-'+product.id);
+  if (card) {
+    const qty = cart.filter(i=>i.id===product.id).reduce((s,i)=>s+i.qty,0);
+    const pill = document.getElementById('qpill-'+product.id);
+    if (pill) { pill.textContent = qty+'×'; pill.classList.add('show'); }
+    card.classList.add('in-cart');
+  }
+}
+
+function removeFromCart(key) {
+  const idx = cart.findIndex(i => i.key === key);
+  if (idx < 0) return;
+  if (cart[idx].qty > 1) cart[idx].qty--;
+  else cart.splice(idx, 1);
+  updateCartUI();
+  renderCart();
+  renderProducts(curCat);
+}
+
+function updateCartUI() {
+  const count = cartCount();
+  const total = cartTotal();
+  // Header badge
+  document.getElementById('cartCount').textContent = count;
+  const badge = document.getElementById('cartBadge');
+  badge.textContent = count;
+  badge.classList.toggle('show', count > 0);
+  // Cart bar
+  const bar = document.getElementById('cartBar');
+  bar.classList.toggle('show', count > 0);
+  document.getElementById('cartBarCount').textContent = count;
+  document.getElementById('cartBarTotal').textContent = fmt(total);
+}
+
+/* ===== GO CART ===== */
+function goCart() {
+  if (cartCount() === 0) return;
+  renderCart();
+  show('sc-cart');
+}
+
+function renderCart() {
+  const list = document.getElementById('cartList');
+  if (cart.length === 0) {
+    list.innerHTML = `<div class="empty-cart"><div class="empty-cart-icon">🛒</div><div style="color:var(--muted)">Tu carrito está vacío</div></div>`;
+    return;
+  }
+  const items = cart.map(i => {
+    const imgHtml = i.img
+      ? `<img class="cart-item-img" src="${i.img}" alt="${i.name}" onerror="this.style.display='none'">`
+      : `<div class="cart-item-img" style="display:flex;align-items:center;justify-content:center;font-size:1.5rem;background:var(--bg3)">${i.emoji||'🍔'}</div>`;
+    return `<div class="cart-item">
+      ${imgHtml}
+      <div class="cart-item-info">
+        <div class="cart-item-name">${i.name}</div>
+        ${i.extrasLabel ? `<div class="cart-item-extras">+ ${i.extrasLabel}</div>` : ''}
+        <div class="cart-item-price">${fmt(i.unitPrice)} c/u</div>
+      </div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="removeFromCart('${i.key}')">−</button>
+        <span class="qty-num">${i.qty}</span>
+        <button class="qty-btn" onclick="addToCartDirect('${i.key}')" style="background:var(--red);border-color:var(--red)">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  const total = `<hr class="cart-divider"><div class="cart-total-row"><span class="cart-total-label">TOTAL</span><span class="cart-total-val">${fmt(cartTotal())}</span></div>`;
+  list.innerHTML = items + total;
+}
+
+function addToCartDirect(key) {
+  const item = cart.find(i => i.key === key);
+  if (item) { item.qty++; updateCartUI(); renderCart(); renderProducts(curCat); }
+}
+
+/* ===== GO PAY ===== */
+function goPay() {
+  document.getElementById('payTotal').textContent = fmt(cartTotal());
+  show('sc-pay');
+}
+
+/* ===== QR ===== */
+function goQR(method) {
+  const logos = { mp:'assets/mercadopago-logo-transparente.png', modo:'assets/modo-logo-transparente.png' };
+  const titles = { mp:'Mercado Pago QR', modo:'MODO QR' };
+  document.getElementById('qrTitle').textContent = titles[method];
+  document.getElementById('qrLogo').src = logos[method];
+  document.getElementById('qrTotal').textContent = fmt(cartTotal());
+  startQRTimer();
+  show('sc-qr');
+}
+
+function startQRTimer() {
+  if (qrTimerInterval) clearInterval(qrTimerInterval);
+  let t = 60;
+  document.getElementById('qrTimer').textContent = t;
+  qrTimerInterval = setInterval(() => {
+    t--;
+    document.getElementById('qrTimer').textContent = t;
+    if (t <= 0) { clearInterval(qrTimerInterval); }
+  }, 1000);
+}
+
+/* ===== PINPAD ===== */
+function goPinpad() {
+  document.getElementById('pinpadAmt').textContent = fmt(cartTotal());
+  show('sc-pinpad');
+}
+
+/* ===== CONFIRM ===== */
+function doConfirm() {
+  if (qrTimerInterval) clearInterval(qrTimerInterval);
+  document.getElementById('successOrder').textContent = Math.floor(Math.random() * 800) + 100;
+  document.getElementById('successTotal').textContent = fmt(cartTotal());
+  show('sc-success');
+}
+
+/* ===== RESET ===== */
+function doReset() {
+  cart = [];
+  updateCartUI();
+  showMenu();
+}
+
+/* ===== BACK ===== */
+function goBack(to) {
+  if (to === 'sc-menu') renderProducts(curCat);
+  show(to);
+}
+</script>
+</body>
+</html>

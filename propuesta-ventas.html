@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Tasty · Kioscos de Autogestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/* ===== VARIABLES ===== */
+:root{
+  --red:#CC0000;--red-dark:#990000;
+  --gold:#FFB800;--gold-dim:rgba(255,184,0,.12);
+  --bg:#0d0d0d;--bg2:#111;--bg3:#1a1a1a;
+  --border:rgba(255,255,255,.08);
+  --text:#fff;--muted:#888;--dim:#444;
+  --lc:#00CC88;
+  --title:clamp(3rem,9vw,8rem);
+  --h2:clamp(2.2rem,5.5vw,4.5rem);
+  --h3:clamp(1.3rem,2.5vw,2rem);
+  --body:clamp(1rem,1.8vw,1.3rem);
+  --small:clamp(.88rem,1.4vw,1.1rem);
+  --pad:clamp(1.5rem,4vw,4.5rem);
+  --gap:clamp(.8rem,2vh,2rem);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+/* ===== VIEWPORT BASE ===== */
+html,body{height:100%;overflow-x:hidden;background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth}
+.slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;flex-direction:column;position:relative}
+
+/* ===== CHROME ===== */
+#progressBar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--red),var(--gold));z-index:1000;width:0%;transition:width .3s}
+#navDots{position:fixed;right:1rem;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:.4rem;z-index:999}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer;transition:all .3s}
+.nav-dot.active{background:var(--gold);transform:scale(1.5)}
+.slide-num{position:absolute;bottom:1rem;right:1.8rem;font-family:'Barlow Condensed',sans-serif;font-size:var(--small);color:var(--dim);letter-spacing:.08em}
+
+/* ===== ANIMATIONS ===== */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.slide.visible .reveal{opacity:1;transform:translateY(0)}
+.reveal[data-delay="2"]{transition-delay:.1s}
+.reveal[data-delay="3"]{transition-delay:.2s}
+.reveal[data-delay="4"]{transition-delay:.32s}
+.reveal[data-delay="5"]{transition-delay:.44s}
+.reveal[data-delay="6"]{transition-delay:.56s}
+
+/* ===== COMMON ===== */
+.label{font-family:'Barlow Condensed',sans-serif;font-size:clamp(.8rem,1.2vw,1rem);letter-spacing:.25em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:.3rem}
+.tag{display:inline-block;padding:.2em .65em;border-radius:100px;font-family:'Barlow Condensed',sans-serif;font-size:var(--small);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tag-red{background:rgba(204,0,0,.12);color:#ff7777;border:1px solid rgba(204,0,0,.3)}
+.tag-gold{background:rgba(255,184,0,.1);color:var(--gold);border:1px solid rgba(255,184,0,.25)}
+.tag-green{background:rgba(74,222,128,.08);color:#4ade80;border:1px solid rgba(74,222,128,.2)}
+.tag-lc{background:rgba(0,204,136,.1);color:var(--lc);border:1px solid rgba(0,204,136,.25)}
+
+/* ===== SLIDE 1: PORTADA ===== */
+#s1{background:#080808;align-items:center;justify-content:center;text-align:center}
+#s1::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 50% 45%,rgba(204,0,0,.1) 0%,transparent 70%)}
+.hero-mr{font-family:'Bebas Neue',sans-serif;font-size:clamp(1rem,2.5vw,2rem);color:var(--gold);letter-spacing:.25em}
+.hero-tasty{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,13vw,11rem);color:#fff;line-height:.82;letter-spacing:.01em}
+
+/* ===== SLIDE 2: OPORTUNIDADES ===== */
+#s2{background:linear-gradient(160deg,#0a0a0a 0%,#0d0d0d 60%,#0a0f09 100%)}
+.opp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(.8rem,2vw,1.6rem);flex:1;max-height:min(64vh,500px)}
+.opp-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:clamp(1rem,2.8vh,2rem);display:flex;flex-direction:column;gap:.45rem;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.opp-card:hover{transform:translateY(-2px);border-color:rgba(255,184,0,.2)}
+.opp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.opp-card:nth-child(1)::before{background:linear-gradient(90deg,#FFB800,transparent)}
+.opp-card:nth-child(2)::before{background:linear-gradient(90deg,#4ade80,transparent)}
+.opp-card:nth-child(3)::before{background:linear-gradient(90deg,#60a5fa,transparent)}
+.opp-card:nth-child(4)::before{background:linear-gradient(90deg,#c084fc,transparent)}
+.opp-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,6vw,5rem);line-height:1}
+.opp-card:nth-child(1) .opp-num{color:#FFB800}
+.opp-card:nth-child(2) .opp-num{color:#4ade80}
+.opp-card:nth-child(3) .opp-num{color:#60a5fa}
+.opp-card:nth-child(4) .opp-num{color:#c084fc}
+.opp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.8vw,1.4rem);line-height:1.2}
+.opp-desc{font-size:var(--small);color:var(--muted);line-height:1.55;flex:1}
+.opp-source{font-size:clamp(.6rem,.9vw,.75rem);color:var(--dim);letter-spacing:.03em;margin-top:auto;padding-top:.3rem;border-top:1px solid rgba(255,255,255,.05)}
+
+/* ===== SLIDE 3: SOLUCIÓN ===== */
+.sol-feature{display:flex;align-items:flex-start;gap:.7rem;padding:clamp(.5rem,1.2vh,.9rem) 0;border-bottom:1px solid var(--border)}
+.sol-feature:last-child{border-bottom:none}
+.sol-icon{width:clamp(1.8rem,3vh,2.4rem);height:clamp(1.8rem,3vh,2.4rem);border-radius:9px;background:rgba(204,0,0,.1);display:flex;align-items:center;justify-content:center;font-size:clamp(.9rem,1.6vh,1.2rem);flex-shrink:0}
+.sol-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.7vw,1.3rem)}
+.sol-sub{font-size:var(--small);color:var(--muted)}
+
+/* ===== SLIDE 4: CÓMO FUNCIONA ===== */
+#s4{background:#09090f}
+.flow-wrap{display:flex;align-items:stretch;gap:0;flex:1;max-height:min(62vh,420px)}
+.flow-step{flex:1;text-align:center;padding:clamp(.7rem,2vh,1.5rem) clamp(.4rem,1.2vw,1rem);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:.5rem;padding-top:clamp(1rem,2.5vh,2rem)}
+.flow-step:not(:last-child)::after{content:'→';position:absolute;right:calc(-1em);top:clamp(3.5rem,8vh,5rem);font-size:clamp(1rem,2vw,1.6rem);color:rgba(255,184,0,.4);line-height:1}
+.flow-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.5vw,2rem);color:var(--red);line-height:1}
+.flow-img-wrap{width:clamp(70px,9vh,110px);height:clamp(70px,9vh,110px);border-radius:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;margin:.2rem 0;transition:transform .3s var(--ease),box-shadow .3s}
+.flow-step:hover .flow-img-wrap{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.flow-img{width:clamp(48px,6.5vh,78px);height:clamp(48px,6.5vh,78px);object-fit:contain;filter:drop-shadow(0 6px 14px rgba(0,0,0,.4));transition:transform .3s var(--ease)}
+.flow-step:hover .flow-img{transform:scale(1.08)}
+.flow-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.6vw,1.3rem)}
+.flow-desc{font-size:var(--small);color:var(--muted);line-height:1.5;max-width:180px}
+
+/* ===== SLIDE 5: PROTOTIPO ===== */
+#s5{background:linear-gradient(140deg,#0d0000 0%,#0d0d0d 55%,#00120a 100%);align-items:center;justify-content:center}
+.proto-wrapper{display:flex;gap:clamp(1.5rem,3.5vw,3.5rem);align-items:center;max-width:min(96vw,1120px);padding:var(--pad)}
+.proto-info{flex:1;min-width:0;max-width:300px}
+.proto-check{display:flex;align-items:center;gap:.4rem;font-size:var(--small);color:var(--muted)}
+
+/* ===== SLIDE 6: NÚMEROS ===== */
+#s6{background:#080808}
+.bigstat-row{display:flex;gap:0;flex:1;max-height:min(52vh,340px)}
+.bigstat{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:clamp(.8rem,2.5vw,2rem);position:relative}
+.bigstat::after{content:'';position:absolute;right:0;top:15%;bottom:15%;width:1px;background:var(--border)}
+.bigstat:last-child::after{display:none}
+.bigstat-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,10vw,8.5rem);line-height:1;color:var(--gold)}
+.bigstat-label{font-size:var(--body);color:var(--muted);text-align:center;max-width:210px}
+.bigstat-sub{font-size:var(--small);color:var(--dim);text-align:center;margin-top:.2rem}
+
+/* ===== SLIDE 7: INVERSIÓN ===== */
+#s7{background:#0d0d0d}
+.invest-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem,2.5vw,2rem);flex:1;max-height:min(63vh,480px)}
+.invest-card{background:var(--bg2);border:2px solid var(--border);border-radius:20px;padding:clamp(1rem,3vh,2.2rem);display:flex;flex-direction:column;gap:.5rem;position:relative;overflow:hidden;transition:border-color .25s,transform .25s}
+.invest-card:hover{transform:translateY(-3px)}
+.invest-card.prem{border-color:rgba(204,0,0,.35)}.invest-card.prem::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--gold))}
+.invest-card.low{border-color:rgba(0,204,136,.3)}.invest-card.low::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--lc),transparent)}
+.invest-badge{font-family:'Barlow Condensed',sans-serif;font-size:var(--small);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.invest-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3.5vw,3.2rem);line-height:1.1;white-space:nowrap}
+.invest-desc{font-size:var(--small);color:var(--muted);line-height:1.55}
+.invest-price{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4.2vw,3.8rem);line-height:1}
+.invest-monthly{font-size:var(--small);color:var(--muted)}
+.invest-feat{display:flex;align-items:center;gap:.38rem;font-size:var(--small);color:var(--muted)}
+.invest-feat::before{content:'✓';color:#4ade80;font-weight:700;flex-shrink:0}
+
+/* ===== SLIDE 8: ROI ===== */
+#s8{background:#080808}
+.roi-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:clamp(.8rem,2.5vh,1.8rem);flex:1;display:flex;flex-direction:column;gap:.35rem}
+.roi-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.7vw,1.3rem)}
+.roi-row{display:flex;justify-content:space-between;align-items:center;padding:.18rem 0;font-size:var(--small);border-bottom:1px solid rgba(255,255,255,.04)}
+.roi-row:last-of-type{border-bottom:none}
+.roi-val{font-family:'Barlow Condensed',sans-serif;font-weight:700}
+.roi-chip{border-radius:8px;padding:.35rem .6rem;font-size:var(--small)}
+
+/* ===== SLIDE 9: CTA ===== */
+#s9{background:#080808;align-items:center;justify-content:center;text-align:center}
+#s9::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(204,0,0,.08) 0%,transparent 70%)}
+.step-card{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:clamp(.8rem,2.5vh,1.8rem);text-align:left;position:relative;overflow:hidden}
+.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.step-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:rgba(255,184,0,.18);line-height:1}
+.step-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(1rem,1.7vw,1.3rem);margin:.15rem 0}
+.step-desc{font-size:var(--small);color:var(--muted);line-height:1.5}
+
+/* ===== RESPONSIVE ===== */
+@media(max-height:700px){:root{--pad:clamp(1rem,3vw,2.5rem);--gap:clamp(.5rem,1.5vh,1.2rem);--h2:clamp(1.4rem,4vw,3rem)}}
+@media(max-height:600px){:root{--pad:clamp(.8rem,2.5vw,1.8rem);--gap:clamp(.4rem,1vh,.9rem);--body:clamp(.78rem,1.2vw,.95rem)} #navDots{display:none}}
+@media(max-height:500px){:root{--pad:clamp(.5rem,2vw,1.2rem);--h2:clamp(1.2rem,3.5vw,2.5rem)}}
+@media(max-width:600px){.problem-grid{grid-template-columns:1fr}.flow-wrap{flex-direction:column}.flow-step::after{display:none}.invest-grid{grid-template-columns:1fr}.proto-info{display:none}.roi-grid{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div id="progressBar"></div>
+<nav id="navDots" aria-label="Navegación"></nav>
+
+<!-- ====================================
+     SLIDE 1 – PORTADA
+     ==================================== -->
+<section class="slide" id="s1">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:var(--gap);padding:var(--pad);text-align:center">
+    <div class="reveal" style="font-size:clamp(2.5rem,7vh,5.5rem);line-height:1">🍔</div>
+    <div class="reveal" data-delay="2">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(.85rem,1.6vw,1.2rem);letter-spacing:.25em;color:var(--muted);margin-bottom:.6rem">PROPUESTA PARA</div>
+      <img src="assets/MRTASTY02.webp" alt="Mr. Tasty" style="max-height:clamp(80px,18vh,180px);max-width:min(80vw,520px);object-fit:contain;filter:drop-shadow(0 4px 20px rgba(204,0,0,.35))">
+    </div>
+    <div class="reveal" data-delay="3">
+      <div style="width:36px;height:2px;background:var(--gold);margin:0 auto .7rem"></div>
+      <p style="font-size:var(--body);color:var(--muted);max-width:480px;line-height:1.65;margin:0 auto">
+        Más ventas. Menos esperas.<br>
+        <strong style="color:var(--text)">Kioscos de autogestión para tus franquicias.</strong>
+      </p>
+    </div>
+    <div class="reveal" data-delay="4" style="display:flex;gap:clamp(1.5rem,4vw,3.5rem);flex-wrap:wrap;justify-content:center;align-items:center">
+      <img src="assets/MRTASTY02.webp" alt="Mr. Tasty" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+      <img src="assets/MilaYGO01.webp" alt="Mila & Go" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+      <img src="assets/LogoElDesembarco001.webp" alt="El Desembarco" style="height:clamp(28px,4.5vh,52px);object-fit:contain;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+    </div>
+  </div>
+  <div class="slide-num">1 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 2 – OPORTUNIDADES
+     ==================================== -->
+<section class="slide" id="s2">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Datos de la industria</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Oportunidades de mejora</h2>
+      <p style="font-size:var(--small);color:var(--dim);margin-top:.3rem" class="reveal" data-delay="2">Basado en estudios de Tillster, McDonald's Corp. y QSR Magazine</p>
+    </div>
+    <div class="opp-grid reveal" data-delay="3">
+
+      <div class="opp-card">
+        <div class="opp-num">+30%</div>
+        <div class="opp-title">Más ingreso por cada pedido</div>
+        <div class="opp-desc">McDonald's registró un 30% de aumento en el valor promedio de pedido con kioscos. El cliente elige a su ritmo, sin presión, y naturalmente agrega más.</div>
+        <div class="opp-source">Fuente: McDonald's Corp. / Tillster Phygital Index 2025</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num">76%</div>
+        <div class="opp-title">Upselling que sucede solo</div>
+        <div class="opp-desc">El 76% de los clientes que usan kiosko termina agregando ítems que no tenía planeados. Las sugerencias visuales y sin presión convierten mejor que cualquier guión de venta.</div>
+        <div class="opp-source">Fuente: Tillster Phygital Index Report 2025</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num">36%</div>
+        <div class="opp-title">Clientes que esperan menos, vuelven más</div>
+        <div class="opp-desc">El 36% de los clientes eligió otro local por los tiempos de espera. Reducir la fila con kioscos es convertir esa estadística a tu favor y fidelizar más clientes.</div>
+        <div class="opp-source">Fuente: CivicScience / QSR Magazine Drive-Thru Report 2024</div>
+      </div>
+
+      <div class="opp-card">
+        <div class="opp-num">61%</div>
+        <div class="opp-title">La demanda ya existe en tus clientes</div>
+        <div class="opp-desc">El 61% de los consumidores prefiere pedir en kiosko. Ofrecer esa opción es darle a tu cliente lo que ya quiere — y diferenciarte de los locales que aún no lo tienen.</div>
+        <div class="opp-source">Fuente: Tillster Phygital Index 2025 (sube de 36% en 2023 a 61% en 2025)</div>
+      </div>
+
+    </div>
+  </div>
+  <div class="slide-num">2 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 3 – LA SOLUCIÓN
+     ==================================== -->
+<section class="slide" id="s3">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.5rem,4vw,4rem);align-items:center;flex:1;max-height:min(75vh,580px)">
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div>
+          <p class="label reveal">La solución</p>
+          <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">2 kioscos.<br>Un local diferente.</h2>
+        </div>
+        <div class="reveal" data-delay="3">
+          <div class="sol-feature">
+            <div class="sol-icon">🤝</div>
+            <div><div class="sol-name">El cliente se atiende solo</div><div class="sol-sub">Toca, elige, paga. Sin esperar a nadie.</div></div>
+          </div>
+          <div class="sol-feature">
+            <div class="sol-icon">⚡</div>
+            <div><div class="sol-name">Pedido directo a cocina</div><div class="sol-sub">Sin papel, sin intermediarios. La comanda llega al instante.</div></div>
+          </div>
+          <div class="sol-feature">
+            <div class="sol-icon">📈</div>
+            <div><div class="sol-name">Upselling automático</div><div class="sol-sub">Sugiere combos y extras en cada pedido, sin excepción.</div></div>
+          </div>
+          <div class="sol-feature">
+            <div class="sol-icon">💳</div>
+            <div><div class="sol-name">Todos los medios de pago</div><div class="sol-sub">Mercado Pago, MODO, débito y crédito.</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Kiosk SVG -->
+      <div style="display:flex;align-items:center;justify-content:center" class="reveal" data-delay="4">
+        <svg viewBox="0 0 160 300" style="width:clamp(110px,14vw,190px);filter:drop-shadow(0 0 35px rgba(255,184,0,.18))">
+          <ellipse cx="80" cy="290" rx="42" ry="7" fill="rgba(255,184,0,.07)"/>
+          <rect x="67" y="235" width="26" height="55" rx="4" fill="#1a1a1a"/>
+          <rect x="48" y="280" width="64" height="10" rx="5" fill="#222"/>
+          <rect x="5" y="15" width="150" height="225" rx="14" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1.5"/>
+          <rect x="13" y="24" width="134" height="198" rx="9" fill="#111"/>
+          <rect x="16" y="27" width="128" height="192" rx="7" fill="#0d0d0d"/>
+          <rect x="16" y="27" width="128" height="28" rx="7" fill="#CC0000"/>
+          <rect x="16" y="43" width="128" height="12" fill="#CC0000"/>
+          <text x="80" y="46" text-anchor="middle" font-family="Arial" font-weight="800" font-size="10" fill="white" letter-spacing="2">MR. TASTY</text>
+          <rect x="21" y="62" width="55" height="58" rx="7" fill="#1a1a1a"/>
+          <rect x="82" y="62" width="55" height="58" rx="7" fill="#1a1a1a"/>
+          <rect x="21" y="126" width="55" height="58" rx="7" fill="#1a1a1a"/>
+          <rect x="82" y="126" width="55" height="58" rx="7" fill="#1a1a1a"/>
+          <text x="48" y="96" text-anchor="middle" font-size="22">🍔</text>
+          <text x="109" y="96" text-anchor="middle" font-size="22">🍟</text>
+          <text x="48" y="160" text-anchor="middle" font-size="22">🥤</text>
+          <text x="109" y="160" text-anchor="middle" font-size="22">🍦</text>
+          <rect x="21" y="190" width="116" height="22" rx="11" fill="#CC0000"/>
+          <text x="80" y="204" text-anchor="middle" font-family="Arial" font-weight="700" font-size="8" fill="white">CONFIRMAR PEDIDO  →</text>
+          <rect x="47" y="220" width="66" height="8" rx="3" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+          <text x="80" y="227" text-anchor="middle" font-family="Arial" font-size="5" fill="#444">◈ QR · CÓDIGO DE BARRAS</text>
+          <rect x="0" y="85" width="5" height="55" rx="2.5" fill="rgba(204,0,0,.35)"/>
+          <rect x="155" y="85" width="5" height="55" rx="2.5" fill="rgba(255,184,0,.25)"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">3 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 4 – CÓMO FUNCIONA
+     ==================================== -->
+<section class="slide" id="s4">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Experiencia del cliente</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Así funciona en tu local</h2>
+    </div>
+    <div class="flow-wrap reveal" data-delay="3">
+      <div class="flow-step">
+        <div class="flow-num">01</div>
+        <div class="flow-img-wrap">
+          <img class="flow-img"
+               src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Mobile%20phone/3D/mobile_phone_3d.png"
+               alt="Elige tu pedido">
+        </div>
+        <div class="flow-name">Elige su pedido</div>
+        <div class="flow-desc">Toca la pantalla, ve fotos reales, arma su combo con extras personalizados.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">02</div>
+        <div class="flow-img-wrap">
+          <img class="flow-img"
+               src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Credit%20card/3D/credit_card_3d.png"
+               alt="Paga solo">
+        </div>
+        <div class="flow-name">Paga solo</div>
+        <div class="flow-desc">Mercado Pago, MODO, débito o crédito. Sin efectivo, sin errores, sin cajero.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">03</div>
+        <div class="flow-img-wrap">
+          <img class="flow-img"
+               src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Cooking/3D/cooking_3d.png"
+               alt="Comanda a cocina">
+        </div>
+        <div class="flow-name">Comanda al instante</div>
+        <div class="flow-desc">El pedido llega directo a cocina. Ticket fiscal automático. Tu equipo solo cocina.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">04</div>
+        <div class="flow-img-wrap">
+          <img class="flow-img"
+               src="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@main/assets/Hamburger/3D/hamburger_3d.png"
+               alt="Retira tu pedido">
+        </div>
+        <div class="flow-name">Retira su pedido</div>
+        <div class="flow-desc">Con número de orden. Sin confusiones, sin demoras por comunicación.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">4 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 5 – PROTOTIPO
+     ==================================== -->
+<section class="slide" id="s5">
+  <div style="display:flex;align-items:center;justify-content:center;height:100%">
+    <div class="proto-wrapper">
+      <!-- Info -->
+      <div class="proto-info reveal">
+        <p class="label">Prototipo interactivo</p>
+        <h3 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,3.2vw,2.8rem);line-height:1;margin-bottom:.6rem">Probalo vos mismo</h3>
+        <p style="font-size:var(--small);color:var(--muted);line-height:1.6;margin-bottom:.9rem">Así ve y vive el pedido tu cliente. Clickeable y funcional.</p>
+        <div style="display:flex;flex-direction:column;gap:.35rem">
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Menú con productos y precios</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Carrito en tiempo real</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Múltiples métodos de pago</div>
+          <div class="proto-check"><span style="color:#4ade80">✓</span> Confirmación de pedido</div>
+        </div>
+      </div>
+
+      <!-- Device: iframe del prototipo standalone -->
+      <div class="reveal" data-delay="2" style="flex-shrink:0">
+        <iframe
+          src="kiosko-proto.html"
+          title="Prototipo kiosko Mr. Tasty"
+          style="border:none;display:block;width:clamp(400px,48vw,600px);height:clamp(620px,88vh,900px);border-radius:16px;overflow:hidden"
+          scrolling="no"
+          allowtransparency="true"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">5 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 6 – LOS NÚMEROS
+     ==================================== -->
+<section class="slide" id="s6">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Resultados reales</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Lo que un kiosko hace por tu local</h2>
+    </div>
+    <div class="bigstat-row reveal" data-delay="3">
+      <div class="bigstat">
+        <div class="bigstat-num">+18%</div>
+        <div class="bigstat-label">Ticket promedio por cliente</div>
+        <div class="bigstat-sub">Upselling automático en cada pedido</div>
+      </div>
+      <div class="bigstat">
+        <div class="bigstat-num">−40%</div>
+        <div class="bigstat-label">Tiempo de espera en fila</div>
+        <div class="bigstat-sub">El cliente no espera que lo atiendan</div>
+      </div>
+      <div class="bigstat">
+        <div class="bigstat-num" style="font-size:clamp(3rem,7.5vw,6.5rem)">CERO</div>
+        <div class="bigstat-label">Errores por mala comunicación</div>
+        <div class="bigstat-sub">Lo que el cliente toca es lo que cocina recibe</div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="4" style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:.75rem 1.1rem;display:flex;align-items:center;gap:.9rem">
+      <span style="font-size:1.3rem;flex-shrink:0">💡</span>
+      <span style="font-size:var(--small);color:var(--muted);line-height:1.5">McDonald's, Burger King y Wendy's reportan <strong style="color:var(--text)">+15 a 25% de facturación</strong> en locales con kioscos versus locales solo con cajeros.</span>
+    </div>
+  </div>
+  <div class="slide-num">6 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 7 – INVERSIÓN POR LOCAL
+     ==================================== -->
+<section class="slide" id="s7">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Inversión</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">Cuánto cuesta por local</h2>
+      <p style="font-size:var(--small);color:var(--muted);margin-top:.25rem" class="reveal" data-delay="2">Dos opciones según el perfil de cada franquicia.</p>
+    </div>
+    <div class="invest-grid reveal" data-delay="3">
+      <!-- Opción A -->
+      <div class="invest-card prem">
+        <div class="invest-badge" style="color:var(--red)">Opción A · Premium</div>
+        <div class="invest-name">🖥️ 2 Kioscos Físicos</div>
+        <div class="invest-desc">2 pantallas táctiles 21.5" con escáner QR, impresora fiscal Hasar homologada AFIP y lector de tarjetas integrado. Experiencia 100% autónoma.</div>
+        <div style="height:1px;background:var(--border);margin:.1rem 0"></div>
+        <div style="display:flex;align-items:baseline;gap:.3rem">
+          <div class="invest-price" style="color:var(--red)">$7.500</div>
+          <div style="font-size:var(--small);color:var(--muted)">USD / local · única vez</div>
+        </div>
+        <div class="invest-monthly">+ USD $380/mes · operación y soporte</div>
+        <div style="height:1px;background:var(--border);margin:.1rem 0"></div>
+        <div class="invest-feat">Pantallas táctiles Full HD</div>
+        <div class="invest-feat">PINpad tarjeta integrado</div>
+        <div class="invest-feat">Impresora fiscal Hasar</div>
+        <div class="invest-feat">Integración Tango Restó incluida</div>
+      </div>
+      <!-- Opción B -->
+      <div class="invest-card low">
+        <div class="invest-badge" style="color:var(--lc)">Opción B · Low Cost</div>
+        <div class="invest-name">📱 App Web + QR</div>
+        <div class="invest-desc">El cliente escanea un QR con su celular, pide y paga online. Funciona en iOS y Android sin instalar ninguna app. Recibe WhatsApp cuando su pedido está listo.</div>
+        <div style="height:1px;background:var(--border);margin:.1rem 0"></div>
+        <div style="display:flex;align-items:baseline;gap:.3rem">
+          <div class="invest-price" style="color:var(--lc)">$0</div>
+          <div style="font-size:var(--small);color:var(--muted)">sin costo de instalación</div>
+        </div>
+        <div class="invest-monthly">USD $199/mes · todo incluido</div>
+        <div style="background:rgba(0,204,136,.08);border:1px solid rgba(0,204,136,.25);border-radius:7px;padding:.28rem .6rem;font-size:clamp(.7rem,1vw,.82rem);color:var(--lc);font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em">A partir de 2 locales · contrato mínimo 6 meses</div>
+        <div style="height:1px;background:var(--border);margin:.1rem 0"></div>
+        <div class="invest-feat">Sin hardware, sin obra</div>
+        <div class="invest-feat">Funciona en iOS y Android sin instalar nada</div>
+        <div class="invest-feat">Pago online MP / MODO</div>
+        <div class="invest-feat">WhatsApp automático "pedido listo"</div>
+        <div class="invest-feat">Activo en semanas, no meses</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">7 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 8 – SE PAGA SOLO
+     ==================================== -->
+<section class="slide" id="s8">
+  <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:var(--pad);gap:var(--gap)">
+    <div>
+      <p class="label reveal">Retorno de inversión</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1" class="reveal" data-delay="2">El kiosko se paga solo</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(.9rem,2.5vw,2rem);flex:1;max-height:min(65vh,440px)" class="reveal" data-delay="3">
+      <!-- ROI A -->
+      <div class="roi-card">
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">
+          <span style="font-size:1.1rem">🖥️</span>
+          <div class="roi-title">Kiosko Físico — por local</div>
+        </div>
+        <div style="font-size:var(--small);color:var(--muted);margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">Local con 250 pedidos/día · ticket promedio $10 USD</div>
+        <div class="roi-row"><span>Facturación mensual actual</span><span class="roi-val">$75.000</span></div>
+        <div class="roi-row"><span>+18% ticket (60% pedidos via kiosko)</span><span class="roi-val" style="color:#4ade80">+$8.100</span></div>
+        <div class="roi-row"><span>Costo mensual del kiosko</span><span class="roi-val" style="color:#f87171">−$380</span></div>
+        <div class="roi-row" style="border-top:1px solid rgba(74,222,128,.15);margin-top:.2rem;padding-top:.2rem">
+          <span><strong>Beneficio neto mensual</strong></span>
+          <span class="roi-val" style="color:#4ade80;font-size:clamp(1rem,1.8vw,1.3rem)">+$7.720</span>
+        </div>
+        <div style="margin-top:.5rem;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.15);border-radius:8px;padding:.38rem .6rem;font-size:var(--small)">
+          📅 Recupero de la inversión de $7.500: <strong style="color:#4ade80">~1 mes</strong>
+        </div>
+      </div>
+      <!-- ROI B -->
+      <div class="roi-card">
+        <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">
+          <span style="font-size:1.1rem">📱</span>
+          <div class="roi-title">App Web QR — por local</div>
+        </div>
+        <div style="font-size:var(--small);color:var(--muted);margin-bottom:.5rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)">Local con 250 pedidos/día · 30% adopción de la app</div>
+        <div class="roi-row"><span>Facturación mensual actual</span><span class="roi-val">$75.000</span></div>
+        <div class="roi-row"><span>+18% ticket (30% pedidos via app)</span><span class="roi-val" style="color:#4ade80">+$4.050</span></div>
+        <div class="roi-row"><span>Costo mensual app</span><span class="roi-val" style="color:#f87171">−$199</span></div>
+        <div class="roi-row" style="border-top:1px solid rgba(74,222,128,.15);margin-top:.2rem;padding-top:.2rem">
+          <span><strong>Beneficio neto mensual</strong></span>
+          <span class="roi-val" style="color:#4ade80;font-size:clamp(1rem,1.8vw,1.3rem)">+$3.851</span>
+        </div>
+        <div style="margin-top:.5rem;background:rgba(0,204,136,.06);border:1px solid rgba(0,204,136,.15);border-radius:8px;padding:.38rem .6rem;font-size:var(--small)">
+          🚀 Sin inversión inicial — <strong style="color:var(--lc)">rentable desde el día 1</strong>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="4" style="background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.18);border-radius:10px;padding:.6rem 1rem;font-size:var(--small);color:var(--muted)">
+      💡 Estimación conservadora: ticket $10 USD promedio, 60% adopción kiosko / 30% adopción app. Precios en USD. Las comisiones de Mercado Pago (0.8%–4.4% según medio de pago) aplican sobre el volumen incremental.
+    </div>
+  </div>
+  <div class="slide-num">8 / 9</div>
+</section>
+
+<!-- ====================================
+     SLIDE 9 – PRÓXIMOS PASOS
+     ==================================== -->
+<section class="slide" id="s9">
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:var(--gap);padding:var(--pad);text-align:center">
+    <div>
+      <p class="label reveal">¿Arrancamos?</p>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:var(--h2);line-height:1;max-width:700px" class="reveal" data-delay="2">De cero a kiosko<br>en tu local</h2>
+    </div>
+    <div style="display:flex;gap:clamp(.7rem,2vw,1.5rem);width:100%;max-width:min(90vw,780px)" class="reveal" data-delay="3">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-name">Demo en vivo</div>
+        <div class="step-desc">Te mostramos el sistema funcionando. Sin compromisos, sin tecnicismos.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-name">Piloto en 1 local</div>
+        <div class="step-desc">Arrancamos con tu local más activo y medimos resultados reales en 30 días.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-name">Escalamos juntos</div>
+        <div class="step-desc">Con los números del piloto, sumamos el resto de tus locales a tu ritmo.</div>
+      </div>
+    </div>
+    <div class="reveal" data-delay="4">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(1.3rem,2.8vw,2.2rem);color:var(--gold);margin-bottom:.2rem">¿Hablamos?</div>
+      <div style="font-size:var(--small);color:var(--muted)">Coordinemos una demo para tu equipo</div>
+    </div>
+  </div>
+  <div class="slide-num">9 / 9</div>
+</section>
+
+<script>
+/* ===== PRESENTATION ===== */
+class Deck {
+  constructor(){
+    this.slides=document.querySelectorAll('.slide');
+    this.total=this.slides.length;
+    this.cur=0;
+    this.buildDots();
+    this.bar=document.getElementById('progressBar');
+    this.setupObserver();
+    this.setupKeys();
+    this.setupTouch();
+    this.setupWheel();
+    this.goTo(0);
+  }
+  buildDots(){
+    const nav=document.getElementById('navDots');
+    this.slides.forEach((_,i)=>{
+      const d=document.createElement('span');
+      d.className='nav-dot'+(i===0?' active':'');
+      d.addEventListener('click',()=>this.goTo(i));
+      nav.appendChild(d);
+    });
+  }
+  update(){
+    if(this.bar) this.bar.style.width=((this.cur/(this.total-1))*100)+'%';
+    document.querySelectorAll('.nav-dot').forEach((d,i)=>d.classList.toggle('active',i===this.cur));
+  }
+  setupObserver(){
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          const i=Array.from(this.slides).indexOf(e.target);
+          if(i!==this.cur){this.cur=i;this.update();}
+        }
+      });
+    },{threshold:0.5});
+    this.slides.forEach(s=>obs.observe(s));
+  }
+  goTo(i){
+    i=Math.max(0,Math.min(this.total-1,i));
+    this.slides[i].scrollIntoView({behavior:'smooth'});
+    this.cur=i; this.update();
+  }
+  setupKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+      if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();this.goTo(this.cur+1);}
+      if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();this.goTo(this.cur-1);}
+      if(e.key==='Home'){e.preventDefault();this.goTo(0);}
+      if(e.key==='End'){e.preventDefault();this.goTo(this.total-1);}
+    });
+  }
+  setupTouch(){
+    let sy=0;
+    document.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;},{passive:true});
+    document.addEventListener('touchend',e=>{
+      const dy=sy-e.changedTouches[0].clientY;
+      if(Math.abs(dy)>50) dy>0?this.goTo(this.cur+1):this.goTo(this.cur-1);
+    });
+  }
+  setupWheel(){
+    let last=0;
+    document.addEventListener('wheel',e=>{
+      if(e.target.closest('#pdevScreen')) return;
+      const now=Date.now();
+      if(now-last<800) return;
+      last=now; e.preventDefault();
+      e.deltaY>0?this.goTo(this.cur+1):this.goTo(this.cur-1);
+    },{passive:false});
+  }
+}
+new Deck();
+</script>
+</body>
+</html>
