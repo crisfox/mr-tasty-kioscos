@@ -1,0 +1,9 @@
+{
+  "routes": [
+    { "src": "/", "dest": "/deck.html" },
+    { "src": "/deck.html", "dest": "/deck.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/kiosko-proto.html", "dest": "/kiosko-proto.html" },
+    { "src": "/(.*)", "status": 404 }
+  ]
+}
